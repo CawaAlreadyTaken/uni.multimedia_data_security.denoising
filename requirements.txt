@@ -1,0 +1,7 @@
+opencv-python
+scikit-learn
+PyWavelets
+pyexiftool
+numpy
+scipy
+tqdm
