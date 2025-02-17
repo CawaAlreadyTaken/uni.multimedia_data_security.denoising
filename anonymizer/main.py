@@ -38,24 +38,24 @@ def menu():
     then asks for input on which device/devices to apply the algorithm(s) to.
     """
     while True:
-        print("\n===== MENU =====")
-        print("1) Fingerprint Removal")
+        print("\n===== ANONYMIZER MENU =====")
+        print("\n1) Fingerprint Removal")
         print("2) Median Filtering")
         print("3) ADP2")
         print("all) Apply all three algorithms")
-        print("h or help) Show this menu description again")
-        print("q or quit) Exit the program")
+        print("h) Show this menu description again")
+        print("q) Quit anonymizer, go back")
 
         choice = input("Select an option: ").strip().lower()
 
-        if choice in ['q', 'quit']:
+        if choice == 'q':
             print("Exiting the program.")
             break
-        elif choice in ['h', 'help']:
-            print("\n--- HELP ---")
+        elif choice == 'h':
+            print("\n--- ANONYMIZER HELP ---")
             print("Choose '1', '2', or '3' to apply a specific algorithm.")
             print("Choose 'all' to apply all three algorithms.")
-            print("Enter 'q' or 'quit' to exit.")
+            print("Enter 'q' to exit.")
             print("-------------\n")
             continue
         elif choice not in ['1', '2', '3', 'all']:
@@ -96,7 +96,6 @@ def menu():
         if cont not in ['y', 'yes']:
             print("Exiting the program.")
             break
-
 
 if __name__ == "__main__":
     menu()

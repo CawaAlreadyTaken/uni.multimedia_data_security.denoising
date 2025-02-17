@@ -58,3 +58,6 @@ def estimate():
         mdic1 = {"fing": K}
         out_name = 'fingerprints/Fingerprint_' + device_path[-3:] + '.mat'
         savemat(out_name, mdic1)
+
+if __name__ == "__main__":
+    estimate()
