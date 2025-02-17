@@ -1,4 +1,4 @@
-from prnu_estimation.functions import extract_multiple_aligned
+from utils.extraction import extract_multiple_aligned
 from multiprocessing import cpu_count
 from scipy.io import savemat
 import numpy as np

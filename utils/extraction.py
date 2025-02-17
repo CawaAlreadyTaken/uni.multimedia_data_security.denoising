@@ -1,11 +1,3 @@
-# -*- coding: UTF-8 -*-
-"""
-@author: Luca Bondi (luca.bondi@polimi.it)
-@author: Paolo Bestagini (paolo.bestagini@polimi.it)
-@author: Nicolò Bonettini (nicolo.bonettini@polimi.it)
-Politecnico di Milano 2018
-"""
-
 from multiprocessing import Pool, cpu_count
 from sklearn.metrics import roc_curve, auc
 from numpy.fft import fft2, ifft2
@@ -14,10 +6,8 @@ from tqdm import tqdm
 import numpy as np
 import pywt
 
-
 class ArgumentError(Exception):
     pass
-
 
 """
 Extraction functions
