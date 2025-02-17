@@ -1,10 +1,10 @@
-import glob
-import numpy as np
-from multiprocessing import cpu_count
-import exiftool
-import cv2
-from scipy.io import savemat
 from prnu_estimation.functions import extract_multiple_aligned
+from multiprocessing import cpu_count
+from scipy.io import savemat
+import numpy as np
+import exiftool
+import glob
+import cv2
 
 basepath='/media/SSD_mmlab/VISION_IMAGES/' # dataset root
 

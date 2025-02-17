@@ -7,13 +7,12 @@ Politecnico di Milano 2018
 """
 
 from multiprocessing import Pool, cpu_count
-
-import numpy as np
-import pywt
+from sklearn.metrics import roc_curve, auc
 from numpy.fft import fft2, ifft2
 from scipy.ndimage import filters
-from sklearn.metrics import roc_curve, auc
 from tqdm import tqdm
+import numpy as np
+import pywt
 
 
 class ArgumentError(Exception):
