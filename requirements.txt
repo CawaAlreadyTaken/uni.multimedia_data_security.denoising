@@ -1,7 +1,7 @@
 opencv-python
 scikit-learn
 PyWavelets
-pyexiftool
+pyexiftool==0.4.13
 numpy
 scipy
 tqdm
