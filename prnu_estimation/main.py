@@ -1,17 +1,16 @@
 from utils.parse_device_input import parse_device_input
 from utils.extraction import extract_multiple_aligned
 from multiprocessing import cpu_count
+from utils.constants import BASEPATH
 from scipy.io import savemat
 import numpy as np
 import exiftool
 import glob
 import cv2
 
-basepath='/media/SSD_mmlab/VISION_IMAGES/' # dataset root
-
 def estimate(devices_list: list[str]):
 
-    devices = sorted(glob.glob(basepath+'D*'))
+    devices = sorted(glob.glob(BASEPATH+'D*'))
 
     for device_path in devices:
         if device_path[-2:] not in devices_list:
