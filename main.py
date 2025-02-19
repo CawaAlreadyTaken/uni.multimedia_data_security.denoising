@@ -1,4 +1,4 @@
-from prnu_estimation.main import estimate as generate_fingerprints
+from prnu_estimation.main import menu as generate_fingerprints
 from anonymizer.main import menu as anonymize_images
 from metrics.main import menu as show_metrics
 
