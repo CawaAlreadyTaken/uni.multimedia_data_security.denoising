@@ -1,10 +1,10 @@
 from utils.parse_device_input import parse_device_input
 from utils.extraction import extract_multiple_aligned
+from utils.rotate_image import rotate_image
 from multiprocessing import cpu_count
 from utils.constants import BASEPATH
 from scipy.io import savemat
 import numpy as np
-import exiftool
 import glob
 import cv2
 
@@ -22,20 +22,10 @@ def estimate(devices_list: list[str]):
         idx_1 = 0
         idx_2 = 0
         for img_name in files:
-            print(img_name)
+            print(f"[ESTIMATING FINGERPRINT] {img_name}")
             img = cv2.imread(img_name)
             try:
-                with exiftool.ExifTool() as et:
-                    orientation = et.get_metadata(img_name)["EXIF:Orientation"]
-                if orientation == 8:
-                    img = cv2.rotate(img, cv2.ROTATE_90_CLOCKWISE)
-                if orientation == 6:
-                    img = cv2.rotate(img, cv2.ROTATE_90_COUNTERCLOCKWISE)
-                if orientation == 3:
-                    img = cv2.rotate(img, cv2.ROTATE_180)
-        
-                if orientation != 8 and orientation != 1 and orientation != 6 and orientation != 3:
-                    continue
+                img = rotate_image(img, img_name)
 
                 imgs += [img.astype(dtype=np.uint8)]
                 
