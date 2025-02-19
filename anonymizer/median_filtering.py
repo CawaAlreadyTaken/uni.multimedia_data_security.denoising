@@ -5,8 +5,9 @@ from utils.pce import pce
 from utils.cross_correlation import crosscorr_2d
 from utils.rotate_image import rotate_image, rotate_back_image
 import numpy as np
+import os
 
-PRINT = False
+PRINT = True
 
 def _print(stringa: str) -> None:
     if PRINT:
@@ -26,6 +27,10 @@ def main(devices: list[str]) -> None:
     for device in devices:
 
         files = sorted(glob.glob(basepath + device + '/nat/*.*'))
+        try:
+            os.mkdir(savepath+device)
+        except:
+            pass
         
         for img_name in files:
                 _print(img_name)
