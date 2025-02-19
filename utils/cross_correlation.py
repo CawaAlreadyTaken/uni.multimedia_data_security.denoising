@@ -5,6 +5,61 @@ from numpy.fft import fft2, ifft2
 Cross-correlation functions
 """
 
+def crosscorr_2d_color(k1: np.ndarray, k2: np.ndarray) -> np.ndarray:
+    """
+    Compute the cross-correlation between two color (3D) images/fingerprints.
+    Each has shape (height, width, channels). The result is a 2D cross-correlation
+    matrix of shape (max_height, max_width).
+
+    :param k1: 3D matrix (H, W, C)
+    :param k2: 3D matrix (H, W, C)
+    :return: 2D cross-correlation matrix
+    """
+    # Check input dimensions
+    assert k1.ndim == 3 and k2.ndim == 3, "Both inputs must be 3D: (H, W, C)."
+    assert k1.shape[2] == k2.shape[2], "Number of channels must match."
+    
+    # Determine the final correlation map size
+    max_height = max(k1.shape[0], k2.shape[0])
+    max_width  = max(k1.shape[1], k2.shape[1])
+    channels   = k1.shape[2]
+    
+    # We'll accumulate the cross-correlation from each channel
+    cc_sum = np.zeros((max_height, max_width), dtype=np.float32)
+
+    for c in range(channels):
+        # Extract single channel
+        k1_c = k1[..., c].astype(np.float32)
+        k2_c = k2[..., c].astype(np.float32)
+
+        # Subtract mean per channel
+        k1_c -= k1_c.mean()
+        k2_c -= k2_c.mean()
+
+        # Pad to the same size
+        k1_c_padded = np.pad(k1_c,
+                             ((0, max_height - k1_c.shape[0]),
+                              (0, max_width  - k1_c.shape[1])),
+                             mode='constant', constant_values=0)
+
+        k2_c_padded = np.pad(k2_c,
+                             ((0, max_height - k2_c.shape[0]),
+                              (0, max_width  - k2_c.shape[1])),
+                             mode='constant', constant_values=0)
+
+        # FFT of channel 1
+        k1_c_fft = fft2(k1_c_padded)
+        # FFT of channel 2 rotated by 180 degrees 
+        # (equivalent to cross-correlation via convolution)
+        k2_c_fft = fft2(np.rot90(k2_c_padded, 2))
+
+        # Inverse FFT of product
+        cc_channel = np.real(ifft2(k1_c_fft * k2_c_fft))
+
+        # Accumulate
+        cc_sum += cc_channel.astype(np.float32)
+
+    return cc_sum
 
 def crosscorr_2d(k1: np.ndarray, k2: np.ndarray):
     """

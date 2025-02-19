@@ -39,11 +39,13 @@ def estimate(devices_list: list[str]):
                 if np.shape(img)[0]<np.shape(img)[1]:
                     imgs += [img.astype(dtype=np.uint8)]
         
+        if not len(imgs):
+            print('No images found for device', device_path[-3:])
+            continue
         print('compute fingerprint', device_path[-3:], ' with: ', len(imgs), 'IMAGES')
         K_k += [extract_multiple_aligned(imgs, processes=cpu_count(), sigma=3)]
         K_k = np.stack(K_k, 0)
 
-        
         del imgs
         K = np.squeeze(K_k, axis=0)
         out_name = 'fingerprints/Fingerprint_' + device_path[-3:] + '.npy'
