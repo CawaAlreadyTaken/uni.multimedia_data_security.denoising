@@ -1,36 +1,7 @@
 from anonymizer.fingerprint_removal import main as fingerprint_removal
 from anonymizer.median_filtering import main as median_filtering
+from utils.parse_device_input import parse_device_input
 from anonymizer.adp2 import main as adp2
-
-def parse_device_input(input_str):
-    """
-    Given a string that may contain:
-      - single numbers (e.g. '8')
-      - multiple comma-separated numbers (e.g. '8,10,12')
-      - ranges with a hyphen (e.g. '6-10')
-      - or any combination of these (e.g. '5,7-9,12')
-    this function returns a sorted list of integers without duplicates.
-    """
-    devices = set()  # use a set to avoid duplicates
-
-    # Split on commas first
-    parts = input_str.split(',')
-    for part in parts:
-        part = part.strip()
-        # Check if this part contains a hyphen for a range
-        if '-' in part:
-            start_str, end_str = part.split('-')
-            start, end = int(start_str.strip()), int(end_str.strip())
-            # Add the range of numbers
-            for num in range(start, end + 1):
-                devices.add(num)
-        else:
-            # Single device
-            devices.add(int(part))
-
-    # Return a sorted list of devices
-    return sorted(devices)
-
 
 def menu():
     """
@@ -73,8 +44,6 @@ def menu():
 
         chosen_devices = parse_device_input(devices_input)
 
-        # Filter out devices not in [1..35]
-        chosen_devices = [n for n in chosen_devices if 1 <= n <= 35]
         if not chosen_devices:
             print("No valid devices selected (must be between 1 and 35). Try again.")
             continue

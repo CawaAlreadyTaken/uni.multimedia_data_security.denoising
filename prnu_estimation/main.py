@@ -1,3 +1,4 @@
+from utils.parse_device_input import parse_device_input
 from utils.extraction import extract_multiple_aligned
 from multiprocessing import cpu_count
 from scipy.io import savemat
@@ -8,12 +9,13 @@ import cv2
 
 basepath='/media/SSD_mmlab/VISION_IMAGES/' # dataset root
 
-def estimate():
+def estimate(devices_list: list[str]):
 
     devices = sorted(glob.glob(basepath+'D*'))
-    # print(devices)
 
     for device_path in devices:
+        if device_path[-2:] not in devices_list:
+            continue
         files = sorted(glob.glob(device_path + '/flat/*.*'))
         K_k = []
         imgs = []
@@ -55,9 +57,59 @@ def estimate():
         
         del imgs
         K = np.squeeze(K_k, axis=0)
-        mdic1 = {"fing": K}
-        out_name = 'fingerprints/Fingerprint_' + device_path[-3:] + '.mat'
-        savemat(out_name, mdic1)
+        out_name = 'fingerprints/Fingerprint_' + device_path[-3:] + '.npy'
+        np.save(out_name, K)
+
+def menu():
+    """
+    Displays a menu to the user, asks on which device/devices
+    to estimate the prnu fingerprints.
+    """
+    while True:
+        print("\n===== ESTIMATOR MENU =====")
+        print("\n1) Estimate fingerprints")
+        print("h) Show this menu description again")
+        print("q) Quit estimator, go back")
+
+        choice = input("Select an option: ").strip().lower()
+
+        if choice == 'q':
+            print("Exiting the program.")
+            break
+        elif choice == 'h':
+            print("\n--- ESTIMATOR HELP ---")
+            print("Write '1' to estimate the fingerprints.")
+            print("Choose 'all' to apply all three algorithms.")
+            print("Enter 'q' to exit.")
+            print("-------------\n")
+            continue
+        elif choice != '1':
+            print("Invalid choice. Try again or type 'h' for help.")
+            continue
+
+        # Now ask for the devices on which to estimate the fingerprints.
+        devices_input = input("Enter the device number(s) between 1 and 35 to process.\n"
+                             "You can specify them in these ways:\n"
+                             " - Single device (e.g. '8')\n"
+                             " - Multiple comma-separated devices (e.g. '8,9,10')\n"
+                             " - A range with a dash (e.g. '6-10')\n"
+                             "Or any combination (e.g. '5,7,10-12').\n"
+                             "Your choice: ")
+
+        chosen_devices = parse_device_input(devices_input)
+
+        if not chosen_devices:
+            print("No valid devices selected (must be between 1 and 35). Try again.")
+            continue
+
+        # Apply chosen algorithm(s)
+        estimate(chosen_devices)
+
+        # Optionally, ask if the user wants to continue or break out
+        cont = input("Do you want to process more? (y/n): ").strip().lower()
+        if cont not in ['y', 'yes']:
+            print("Quitting estimator, going back.")
+            break
 
 if __name__ == "__main__":
-    estimate()
+    menu()
