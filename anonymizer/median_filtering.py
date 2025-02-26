@@ -4,7 +4,7 @@ import cv2
 from utils.pce import pce, pce_color
 from utils.cross_correlation import crosscorr_2d, crosscorr_2d_color
 from utils.rotate_image import rotate_image, rotate_back_image
-from utils.constants import OUTPUTPATH, BASEPATH
+from utils.constants import OUTPUTPATH, BASEPATH, FINGERPRINTSPATH
 import numpy as np
 import os
 
@@ -71,5 +71,5 @@ def main(devices: list[str]) -> None:
                     iter= iter +1
 
                 img_anonymized = rotate_back_image(img_anonymized, img_name)
-                cv2.imwrite(savepath_image , img_anonymized.astype(np.uint8))
+                cv2.imwrite(savepath_image , img_anonymized)
 
