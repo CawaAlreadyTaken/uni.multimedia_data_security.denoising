@@ -45,7 +45,7 @@ def main(devices_list: list[str]):
                 os.makedirs(output_folder)
 
             # Save 'altered'
-            cv2.imwrite(output_folder + img_name.split('/')[-1], altered)
+            cv2.imwrite(output_folder + img_name.split('/')[-1], rotate_back_image(altered, img_name))
 
 def denoise_image(img):
     """
