@@ -1,17 +1,16 @@
-from joblib import Parallel, delayed
-import multiprocessing
-import os
-import glob
-import json
-import cv2
-import numpy as np
-
 from utils.constants import BASEPATH, FINGERPRINTSPATH
 from utils.cross_correlation import crosscorr_2d_color
 from utils.rotate_image import rotate_image
+from joblib import Parallel, delayed
 from utils.pce import pce_color
 from utils.ccn import ccn_fft
 from utils.wpsnr import wpsnr
+import multiprocessing
+import numpy as np
+import glob
+import json
+import cv2
+import os
 
 def compute_metrics(original_path, anonymized_path, fingerprint):
     """
@@ -34,13 +33,17 @@ def compute_metrics(original_path, anonymized_path, fingerprint):
     original = rotate_image(original.astype(np.float32), original_path)
     anonymized = rotate_image(anonymized.astype(np.float32), original_path)
 
+    print("Inizio calcoli per", os.path.basename(original_path))
+
     # Calcoli in sequenza (singolo processo).
     results = {}
-    results['wpsnr'] = wpsnr(original, anonymized)
-    results['initial_pce'] = pce_color(crosscorr_2d_color(original, fingerprint))
-    results['pce'] = pce_color(crosscorr_2d_color(anonymized, fingerprint))
-    results['initial_ccn'] = ccn_fft(original, fingerprint)
-    results['ccn'] = ccn_fft(anonymized, fingerprint)
+    results['wpsnr'] = float(wpsnr(original, anonymized))
+    results['initial_pce'] = float(pce_color(crosscorr_2d_color(original, fingerprint)))
+    results['pce'] = float(pce_color(crosscorr_2d_color(anonymized, fingerprint)))
+    results['initial_ccn'] = float(ccn_fft(original, fingerprint))
+    results['ccn'] = float(ccn_fft(anonymized, fingerprint))
+
+    print(f"{os.path.basename(original_path)}: {results['wpsnr']:.2f} dB, {results['initial_pce']:.2f} -> {results['pce']:.2f}, {results['initial_ccn']:.2f} -> {results['ccn']:.2f}")
 
     # Restituisce (nomefile, results) dove nomefile è il basename dell'originale
     return (os.path.basename(original_path), results)
@@ -48,6 +51,7 @@ def compute_metrics(original_path, anonymized_path, fingerprint):
 def main(chosen_devices: list[str], anonymized_images: str):
     # Numero di job paralleli = numero core; puoi modificarlo a piacere
     n_jobs = multiprocessing.cpu_count()
+    print("Executing with n_jobs =", n_jobs)
 
     for device in chosen_devices:
         # Lista dei file originali
@@ -88,6 +92,6 @@ def main(chosen_devices: list[str], anonymized_images: str):
         output_file = os.path.join(anonymized_images, f'D{device}', 'metrics.json')
         print("Salvo il file:", output_file)
         with open(output_file, "w", encoding="utf-8") as file_json:
-            json.dump(data, file_json, indent=4, ensure_ascii=False)
+            file_json.write(json.dumps(data, indent=4, ensure_ascii=False))
 
         print(f" -> Completato D{device}, {len(data)} file elaborati.")

@@ -1,6 +1,6 @@
 from utils.constants import BASEPATH, OUTPUTPATH, FINGERPRINTSPATH
+from utils.rotate_image import rotate_image, rotate_back_image
 from utils.cross_correlation import crosscorr_2d_color
-from utils.rotate_image import rotate_image
 from utils.pce import pce_color
 from utils.ccn import ccn_fft
 import numpy as np
