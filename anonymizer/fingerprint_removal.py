@@ -1,10 +1,11 @@
+from utils.constants import BASEPATH, OUTPUTPATH, FINGERPRINTSPATH
 from utils.cross_correlation import crosscorr_2d_color
 from utils.rotate_image import rotate_image
-from utils.constants import BASEPATH
 from utils.pce import pce_color
 import numpy as np
 import glob
 import cv2
+import os
 
 def main(devices_list: list[str]):
     alpha_min = 0.01
@@ -18,6 +19,9 @@ def main(devices_list: list[str]):
         if device_path[-2:] not in devices_list:
             continue
         files = sorted(glob.glob(device_path + '/nat/*.*'))
+        output_folder = OUTPUTPATH + 'fingerprint_removal/D' + device_path[-2:] + '/'
+        fingerprints_file = FINGERPRINTSPATH + 'Fingerprint_D' + device_path[-2:] + '.npy'
+        estimated_fingerprint = np.load(fingerprints_file)
         for img_name in files:
             # Load 'original_image' and 'estimated_fingerprint' as NumPy arrays.
             print(f"[ANONYMIZING fingerprint_removal] {img_name}")
@@ -26,7 +30,6 @@ def main(devices_list: list[str]):
             original_image = rotate_image(original_image, img_name)
             if original_image is None:
                 continue
-            estimated_fingerprint = np.load(f"fingerprints/Fingerprint_D{device_path[-2:]}.npy")
 
             altered = remove_camera_fingerprint(
                 original_image,
@@ -37,8 +40,11 @@ def main(devices_list: list[str]):
                 max_iters
             )
 
-            # Save or display 'altered'
-            cv2.imwrite("altered_image.png", altered)
+            if not os.path.exists(output_folder):
+                os.makedirs(output_folder)
+
+            # Save 'altered'
+            cv2.imwrite(output_folder + img_name.split('/')[-1], altered)
 
 def denoise_image(img):
     """

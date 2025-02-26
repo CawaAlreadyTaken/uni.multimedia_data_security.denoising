@@ -43,10 +43,10 @@ def anonymize_image(image, prnu_estimate, threshold=50):
     
 def main(chosen_devices: list):
     for device in chosen_devices:
-        files = sorted(glob.glob(BASEPATH +'D'+ device +'/nat/*.*'))
-        fingerprint = np.load(FINGERPRINTSPATH + 'Fingerprint_D'+device+'.npy').astype(np.float32)
+        files = sorted(glob.glob(BASEPATH + 'D' + device +'/nat/*.*'))
+        fingerprint = np.load(FINGERPRINTSPATH + 'Fingerprint_D' + device + '.npy').astype(np.float32)
         fingerprint = np.repeat(fingerprint[..., np.newaxis], 3, axis=2)
-        output_folder = OUTPUTPATH+'ADP2/D'+device+'/'
+        output_folder = OUTPUTPATH + 'ADP2/D' + device + '/'
 
         if not os.path.exists(output_folder):
             os.makedirs(output_folder)

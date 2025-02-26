@@ -4,6 +4,7 @@ import cv2
 from utils.pce import pce, pce_color
 from utils.cross_correlation import crosscorr_2d, crosscorr_2d_color
 from utils.rotate_image import rotate_image, rotate_back_image
+from utils.constants import OUTPUTPATH, BASEPATH
 import numpy as np
 import os
 
@@ -20,9 +21,9 @@ def median(img, kernel_size):
 
 def main(devices: list[str]) -> None:
 
-    basepath='/media/SSD_mmlab/VISION_IMAGES/D'
-    savepath='anonymized/median_filtering/D'
-    fingerprint_path = "fingerprints/Fingerprint_D"
+    basepath = BASEPATH + 'D'
+    savepath = OUTPUTPATH + 'median_filtering/D'
+    fingerprint_path = FINGERPRINTSPATH + "Fingerprint_D"
 
     for device in devices:
 
