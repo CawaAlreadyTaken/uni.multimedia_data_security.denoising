@@ -10,7 +10,7 @@ def wpsnr(img1: Any, img2: Any) -> float:
   same = not np.any(difference)
   if same is True:
       return 9999999
-  w = np.genfromtxt('csf.csv', delimiter=',')
+  w = np.genfromtxt('utils/csf.csv', delimiter=',')
   ew: Any = convolve2d(difference, np.rot90(w,2), mode='valid')
   decibels = 20.0*np.log10(1.0/sqrt(np.mean(np.mean(ew**2))))
   return decibels
