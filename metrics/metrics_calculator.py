@@ -32,6 +32,8 @@ def compute_metrics(original_path, anonymized_path, fingerprint):
 
     original = rotate_image(original.astype(np.float32), original_path)
     anonymized = rotate_image(anonymized.astype(np.float32), original_path)
+    if original is None or anonymized is None:
+        return None
 
     print("Inizio calcoli per", os.path.basename(original_path))
 
