@@ -4,4 +4,5 @@ PyWavelets
 pyexiftool==0.4.13
 numpy
 scipy
+scikit-image
 tqdm

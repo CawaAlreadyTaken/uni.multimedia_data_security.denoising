@@ -1,6 +1,7 @@
 from utils.constants import BASEPATH, OUTPUTPATH, FINGERPRINTSPATH
 from utils.rotate_image import rotate_image, rotate_back_image
 from utils.cross_correlation import crosscorr_2d_color
+from skimage.restoration import denoise_wavelet
 from utils.pce import pce_color
 from utils.ccn import ccn_fft
 import numpy as np
@@ -9,9 +10,9 @@ import cv2
 import os
 
 def main(devices_list: list[str]):
-    alpha_min = 0.01
-    alpha_max = 1.0
-    threshold_T = 35.0
+    alpha_min = 0.008
+    alpha_max = 0.04
+    threshold_T = 0.1
     max_iters = 10
 
     devices = sorted(glob.glob(BASEPATH+'D*'))
@@ -49,47 +50,98 @@ def main(devices_list: list[str]):
 
 def denoise_image(img):
     """
-    Placeholder for a denoising function F in the paper (Eq. 2).
-    In practice, you might use a wavelet-based denoiser, BM3D, or
-    another robust image-denoising method to extract the noise residue.
+    Stronger denoiser using wavelet-based denoising from scikit-image.
+    This extracts a noise residue x(I) = I - F(I).
+    
+    Arguments:
+        img: Input image as a NumPy array (H x W x C), typically uint8.
 
-    For this simple example, we'll just apply a small Gaussian blur
-    and subtract it, but you should replace this with a stronger denoiser
-    to get more accurate noise residues.
+    Returns:
+        residual: The noise residual, with same shape as `img`.
     """
     # Convert to float32 for safer arithmetic
     img_f = img.astype(np.float32)
-    # Simple Gaussian blur
-    blurred = cv2.GaussianBlur(img_f, ksize=(3, 3), sigmaX=1.0)
-    # Noise residual x(I) = I - denoise(I)
-    residual = img_f - blurred
+
+    # Wavelet-based denoising
+    #   - method='BayesShrink' or 'VisuShrink' can be chosen. 
+    denoised = denoise_wavelet(
+        img_f,
+        channel_axis=-1,
+        convert2ycbcr=True,
+        method='BayesShrink',
+        mode='soft'
+    )
+
+    # Noise residual: x(I) = I - denoise(I)
+    residual = img_f - denoised
+
     return residual
 
-# def r_xy_m(x, y, m):
-#     result = 0
-#     for i in range(len(x)):
-#         result += x[i] * y[(i+m) % len(x)]
-#     return result / len(x)
-#     
-# 
-# def ccn(x, y):
-#     """
-#     Computes a correlation over circular cross-correlation norm
-#     c(x, y) = r_xy(0) / sqrt( (Σ_{m in A} [r_xy(m)]^2) / (L-|A|) )
-#     """
-#     x = x.flatten().astype(np.float32)
-#     y = y.flatten().astype(np.float32)
-# 
-#     neighbors = 30
-#     num = r_xy_m(x, y, 0)
-#     den = 0
-#     for m in range(0, len(x)):
-#         print(m)
-#         if m not in range(neighbors+1):
-#             den += r_xy_m(x, y, m) ** 2
-#     den = np.sqrt(den / (len(x) - neighbors))
-# 
-#     return num / den
+def r_xy_m(x, y, m):
+    return np.mean(x * np.roll(y, m))
+    result = 0
+    for i in range(len(x)):
+        result += x[i] * y[(i+m) % len(x)]
+    return result / len(x)
+
+def ccn(x, y):
+    """
+    Computes a correlation over circular cross-correlation norm
+    c(x, y) = r_xy(0) / sqrt( (Σ_{m in A} [r_xy(m)]^2) / (L-|A|) )
+    """
+    x = x.flatten().astype(np.float32)
+    y = y.flatten().astype(np.float32)
+
+    neighbors = 30
+    num = r_xy_m(x, y, 0)
+    den = 0
+    print(f"Dovro' farne {len(x)}")
+    for m in range(0, len(x)):
+        print(m)
+        if m not in range(neighbors+1):
+            den += r_xy_m(x, y, m) ** 2
+    den = np.sqrt(den / (len(x) - neighbors))
+
+    return num / den
+
+def ccn_paper(x, y, neighbors=30):
+    """
+    Compute the correlation statistic c(x, y) = r_xy(0) / sqrt( ( Σ_{m in A} [r_xy(m)]^2 ) / (L - |A| ) ),
+    where r_xy(m) is the circular cross-correlation at lag m.
+
+    Args:
+        x, y: 1D or multi-D numpy arrays. Flattened internally.
+        neighbors: How many "lags" to include on each side of m=0 in the set A.
+                   For example, neighbors=2 => A = {-2, -1, 1, 2}.
+
+    Returns:
+        A scalar float representing c(x, y).
+    """
+    # Flatten and convert to double precision for safety
+    x = x.flatten().astype(np.float64)
+    y = y.flatten().astype(np.float64)
+    L = len(x)
+    
+    # Compute circular cross-correlation using FFT
+    # (r_xy(m) = IFFT( FFT(x) * conj(FFT(y)) )[m], normalized by L)
+    X = np.fft.fft(x)
+    Y = np.fft.fft(y)
+    cc = np.fft.ifft(X * np.conj(Y)).real    # shape (L,)
+    cc /= L  # so that r_xy(m) = (1/L)*Σ x_i y_{(i+m)%L}
+
+    # r_xy(0) is the main correlation at zero lag
+    r0 = cc[0]
+
+    # Build the set A of nearby lags around zero: {-neighbors..-1, +1..neighbors}
+    # We'll map them into valid indices mod L
+    lags = np.arange(neighbors + 1, L)
+    # The paper sums r_xy(m)^2 for m in A, ignoring m=0
+    sum_sq = np.sum(cc[lags]**2)
+    # The denominator is sqrt( sum_sq / (L - |A|) )
+    denom = np.sqrt(sum_sq / (L - len(lags)))
+
+    # Finally c(x, y) = r_xy(0) / denom
+    return r0 / denom
 
 def remove_camera_fingerprint(
     image: np.ndarray,
@@ -147,27 +199,41 @@ def remove_camera_fingerprint(
         # Multiply J' * K
         product = J_prime * K
         # Correlation c( x(J'), J'*K )
-        return abs(ccn_fft(x_Jp, product))
+        ccnfft = ccn_paper(x_Jp, product)
+        return abs(ccnfft)
 
     # Initialize
     best_image = J.copy()
     best_corr = correlation_metric(best_image)
+    print(f"Best corr: {best_corr}")
     print(f"Pce prima: {pce_color(crosscorr_2d_color(best_image, fingerprint))}")
+
+    changed_max = False
+    changed_min = False
+    J_max = J * (1.0 - alpha_max * K)
+    J_min = J * (1.0 - alpha_min * K)
+    corr_max = correlation_metric(J_max)
+    corr_min = correlation_metric(J_min)
 
     # Iteratively search for alpha
     for _ in range(max_iterations):
         # Candidate with alpha_max
-        J_max = J * (1.0 - alpha_max * K)
-        corr_max = correlation_metric(J_max)
-        print(corr_max)
+        if changed_max:
+            J_max = J * (1.0 - alpha_max * K)
+            corr_max = correlation_metric(J_max)
+            changed_max = False
+        print(f"corr_max: {corr_max}")
 
         if corr_max < T:
             best_image = J_max
             break  # We've satisfied the threshold
 
         # Candidate with alpha_min
-        J_min = J * (1.0 - alpha_min * K)
-        corr_min = correlation_metric(J_min)
+        if changed_min:
+            J_min = J * (1.0 - alpha_min * K)
+            corr_min = correlation_metric(J_min)
+            changed_min = False
+        print(f"corr_min: {corr_min}")
 
         if corr_min < T:
             best_image = J_min
@@ -176,16 +242,18 @@ def remove_camera_fingerprint(
         # Decide which side to shrink based on which correlation is lower
         if corr_min < corr_max:
             # We lean toward alpha_min
+            changed_max = True
             alpha_max = 0.5 * (alpha_min + alpha_max)
             if corr_min < best_corr:
-                best_corr = corr_min
                 best_image = J_min
+                best_corr = corr_min
         else:
             # We lean toward alpha_max
+            changed_min = True
             alpha_min = 0.5 * (alpha_min + alpha_max)
             if corr_max < best_corr:
-                best_corr = corr_max
                 best_image = J_max
+                best_corr = corr_max
 
     print(f"Pce dopo: {pce_color(crosscorr_2d_color(best_image, fingerprint))}")
     return best_image.astype(np.uint8)
