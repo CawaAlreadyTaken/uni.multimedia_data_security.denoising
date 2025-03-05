@@ -63,4 +63,4 @@ def main(chosen_devices: list):
             print('original pce: ',pce_color(crosscorr_2d_color(image, fingerprint)))
             anonymized_image = anonymize_image(image, fingerprint)
             cv2.imwrite(output_folder+file_name, rotate_back_image(anonymized_image,file),[cv2.IMWRITE_JPEG_QUALITY, 100])
-            cv2.imwrite(output_folder+"Gray_"+file_name, rotate_back_image(image,file),[cv2.IMWRITE_JPEG_QUALITY, 100])
+            # cv2.imwrite(output_folder+"Gray_"+file_name, rotate_back_image(image,file),[cv2.IMWRITE_JPEG_QUALITY, 100])
