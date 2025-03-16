@@ -3,6 +3,8 @@ import exiftool
 
 def rotate_image(img, img_name):
     with exiftool.ExifTool() as et:
+        if "EXIF:Orientation" not in et.get_metadata(img_name):
+            return None
         orientation = et.get_metadata(img_name)["EXIF:Orientation"]
     if orientation == 8:
         img = cv2.rotate(img, cv2.ROTATE_90_CLOCKWISE)
@@ -18,6 +20,8 @@ def rotate_image(img, img_name):
 
 def rotate_back_image(img, img_name):
     with exiftool.ExifTool() as et:
+        if "EXIF:Orientation" not in et.get_metadata(img_name):
+            return None
         orientation = et.get_metadata(img_name)["EXIF:Orientation"]
     if orientation == 8:
         img = cv2.rotate(img, cv2.ROTATE_90_COUNTERCLOCKWISE)

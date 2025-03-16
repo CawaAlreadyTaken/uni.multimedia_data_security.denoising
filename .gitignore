@@ -3,3 +3,4 @@
 fingerprints/*.mat
 fingerprints/*.npy
 anonymized/
+**/nohup.out
