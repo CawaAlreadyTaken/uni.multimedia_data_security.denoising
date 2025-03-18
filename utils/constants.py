@@ -1,3 +1,3 @@
 BASEPATH = '/media/SSD_mmlab/VISION_IMAGES/'
-OUTPUTPATH = 'anonymized/'
+OUTPUTPATH = '/media/SSD_mmlab/furious.transform/anonymized/'
 FINGERPRINTSPATH = 'fingerprints/'
