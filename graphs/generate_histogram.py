@@ -74,8 +74,8 @@ def generate_histogram(algorithms_list, devices_list):
                 # (In this case, data[algo_name] will map image_name -> (wpsnr, diff_pce, diff_ccn))
                 for image_name, values in metrics.items():
                     wpsnr = values.get("wpsnr", 0)
-                    diff_pce = values.get("initial_pce", 0) - values.get("pce", 0)
-                    diff_ccn = values.get("initial_ccn", 0) - values.get("ccn", 0)
+                    diff_pce = max(values.get("initial_pce", 0) - values.get("pce", 0), 0)
+                    diff_ccn = max(values.get("initial_ccn", 0) - values.get("ccn", 0), 0)
                     data[algo_name][image_name] = (wpsnr, diff_pce, diff_ccn)
             else:
                 # For multiple devices, compute the average over all images for this device.
@@ -84,8 +84,8 @@ def generate_histogram(algorithms_list, devices_list):
                 diff_ccn_vals = []
                 for image_name, values in metrics.items():
                     wpsnr_vals.append(values.get("wpsnr", 0))
-                    diff_pce_vals.append(values.get("initial_pce", 0) - values.get("pce", 0))
-                    diff_ccn_vals.append(values.get("initial_ccn", 0) - values.get("ccn", 0))
+                    diff_pce_vals.append(max(values.get("initial_pce", 0) - values.get("pce", 0), 0))
+                    diff_ccn_vals.append(max(values.get("initial_ccn", 0) - values.get("ccn", 0), 0))
                 if len(wpsnr_vals) > 0:
                     avg_wpsnr = np.mean(wpsnr_vals)
                     avg_diff_pce = np.mean(diff_pce_vals)
