@@ -1,6 +1,7 @@
 from utils.parse_algorithms_input import parse_algorithms_input
 from graphs.generate_histogram import generate_histogram
 from utils.parse_device_input import parse_device_input
+from graphs.generate_pie import generate_pie
 
 def menu():
     """
@@ -9,25 +10,7 @@ def menu():
     then asks for input on which device/devices to apply the algorithm(s) to
     """
     while True:
-        print("------------------------------------------")
-        print()
         print("\n===== GRAPHS MENU =====")
-        print("Consider that (1) = Fingerprint Removal, (2) = Median Filtering, (3) = ADP2")
-        print("Enter the algorithm number(s) between 1 and 3 to process.\n"
-            "You can specify them in these ways:\n"
-            " - Single algorithm (e.g. '2')\n"
-            " - Multiple comma-separated algorithms (e.g. '1,3')\n"
-            "Otherwise, you can write:")
-        print("all) Apply all three algorithms")
-        print("q) Quit graphs builder, go back")
-
-        choice = input("Select an option: ").strip().lower()
-
-        if choice == 'q':
-            print("Going back.")
-            break
-
-        algorithms_input = parse_algorithms_input(choice)
 
         # Now ask for the devices on which to apply the chosen algorithm(s).
         print("------------------------------------------")
@@ -48,7 +31,7 @@ def menu():
 
         print("------------------------------------------")
         print()
-        graphs_input = input("Consider that (1) = histogram, (2) = altro, (3) = altro\n"
+        graphs_input = input("Consider that (1) = histogram, (2) = pie, (3) = altro\n"
                                 "Enter the graph(s) number(s) between 1 and 3 to generate.\n"
                                 "You can specify them in these ways:\n"
                                 " - Single graph (e.g. '2')\n" 
@@ -66,11 +49,48 @@ def menu():
 
         for graph_identifier in graphs_input:
             if graph_identifier == 1:
+                print("------------------------------------------")
+                print()
+                print("Consider that (1) = Fingerprint Removal, (2) = Median Filtering, (3) = ADP2")
+                print("Enter the algorithm number(s) between 1 and 3 to process.\n"
+                    "You can specify them in these ways:\n"
+                    " - Single algorithm (e.g. '2')\n"
+                    " - Multiple comma-separated algorithms (e.g. '1,3')\n"
+                    "Otherwise, you can write:")
+                print("all) Apply all three algorithms")
+                print("q) Quit graphs builder, go back")
+
+                choice = input("Select an option: ").strip().lower()
+
+                if choice == 'q':
+                    print("Going back.")
+                    break
+
+                algorithms_input = parse_algorithms_input(choice)
+
                 print("Generating histogram graph")
                 generate_histogram(algorithms_input, chosen_devices)
             elif graph_identifier == 2:
-                print("Generating altro graph")
-                #generate_altro(algorithms_input, chosen_devices)
+                print("------------------------------------------")
+                print()
+                print("Consider that (1) = WPSNR, (2) = PCE, (3) = CCN")
+                print("Enter the metric: select a number between 1 and 3 to process.\n")
+                print("q) Quit graphs builder, go back")
+
+                choice = input("Select an option: ").strip().lower()
+
+                if choice == 'q':
+                    print("Going back.")
+                    break
+
+                if choice not in ['1', '2', '3']:
+                    print("Invalid choice. Try again.")
+                    continue
+
+                item = int(choice)
+
+                print("Generating pie graph")
+                generate_pie(chosen_devices, item)
             elif graph_identifier == 3:
                 print("Generating altro graph")
                 #generate_altro(algorithms_input, chosen_devices)
