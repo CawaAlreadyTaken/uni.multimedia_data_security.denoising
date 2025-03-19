@@ -41,6 +41,8 @@ def main(devices_list: list[str]):
                 threshold_T,
                 max_iters
             )
+            if altered is None:
+                altered = original_image
 
             if not os.path.exists(output_folder):
                 os.makedirs(output_folder)
@@ -214,6 +216,7 @@ def remove_camera_fingerprint(
     J_min = J * (1.0 - alpha_min * K)
     corr_max = correlation_metric(J_max)
     corr_min = correlation_metric(J_min)
+    modified = False
 
     # Iteratively search for alpha
     for _ in range(max_iterations):
@@ -226,6 +229,7 @@ def remove_camera_fingerprint(
 
         if corr_max < T:
             best_image = J_max
+            modified = True
             break  # We've satisfied the threshold
 
         # Candidate with alpha_min
@@ -237,6 +241,7 @@ def remove_camera_fingerprint(
 
         if corr_min < T:
             best_image = J_min
+            modified = True
             break  # We've satisfied the threshold
 
         # Decide which side to shrink based on which correlation is lower
@@ -247,6 +252,7 @@ def remove_camera_fingerprint(
             if corr_min < best_corr:
                 best_image = J_min
                 best_corr = corr_min
+                modified = True
         else:
             # We lean toward alpha_max
             changed_min = True
@@ -254,6 +260,11 @@ def remove_camera_fingerprint(
             if corr_max < best_corr:
                 best_image = J_max
                 best_corr = corr_max
+                modified = True
 
     print(f"Pce dopo: {pce_color(crosscorr_2d_color(best_image, fingerprint))}")
-    return best_image.astype(np.uint8)
+
+    if not modified:
+        return None
+    else:
+        return best_image.astype(np.uint8)
