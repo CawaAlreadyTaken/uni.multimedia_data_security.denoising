@@ -3,3 +3,4 @@
 fingerprints/*.mat
 fingerprints/*.npy
 **/nohup.out
+graphs/outputs
