@@ -41,7 +41,8 @@ def compute_metrics(original_path, anonymized_path, fingerprint):
     return (os.path.basename(original_path), results)
 
 def main(chosen_devices: list[str], anonymized_images: str):
-    n_jobs = multiprocessing.cpu_count()
+    # n_jobs = multiprocessing.cpu_count()
+    n_jobs = 14
     print("Executing with n_jobs =", n_jobs)
 
     for device in chosen_devices:
