@@ -1,5 +1,6 @@
 from prnu_estimation.main import menu as generate_fingerprints
 from anonymizer.main import menu as anonymize_images
+from graphs.main import menu as generate_graphs
 from metrics.main import menu as show_metrics
 
 def print_help():
@@ -10,6 +11,7 @@ def print_help():
     print("1) Generate fingerprints: Creates unique identifiers for your data or images.")
     print("2) Anonymize images: Removes sensitive information from images.")
     print("3) Show metrics: Displays current metrics/statistics.")
+    print("4) Generate graphs: Creates visual representations of data.")
     print("h) Help: Prints this help message.")
     print("q) Quit: Exits the application.\n")
 
@@ -25,6 +27,7 @@ def menu():
         print("1) Generate fingerprints")
         print("2) Anonymize images")
         print("3) Show metrics")
+        print("4) Generate graphs")
         print("h) Help")
         print("q) Quit")
 
@@ -36,6 +39,8 @@ def menu():
             anonymize_images()
         elif choice == '3':
             show_metrics()
+        elif choice == '4':
+            generate_graphs()
         elif choice == 'h':
             print_help()
         elif choice == 'q':
