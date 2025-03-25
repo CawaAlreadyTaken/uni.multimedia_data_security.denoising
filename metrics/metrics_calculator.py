@@ -1,3 +1,4 @@
+from skimage.metrics import structural_similarity as ssim
 from utils.constants import BASEPATH, FINGERPRINTSPATH
 from utils.cross_correlation import crosscorr_2d_color
 from utils.rotate_image import rotate_image
@@ -33,6 +34,7 @@ def compute_metrics(original_path, anonymized_path, fingerprint):
 
     results = {}
     results['wpsnr'] = float(wpsnr(original, anonymized))
+    results['ssim'] = float(ssim(original, anonymized, multichannel=True))
     results['initial_pce'] = float(pce_color(crosscorr_2d_color(original, fingerprint)))
     results['pce'] = float(pce_color(crosscorr_2d_color(anonymized, fingerprint)))
     results['initial_ccn'] = float(ccn_fft(original, fingerprint))
