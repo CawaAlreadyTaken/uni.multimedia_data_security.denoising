@@ -34,7 +34,7 @@ def compute_metrics(original_path, anonymized_path, fingerprint):
 
     results = {}
     results['wpsnr'] = float(wpsnr(original, anonymized))
-    results['ssim'] = float(ssim(original, anonymized, multichannel=True))
+    results['ssim'] = float(ssim(original, anonymized, multichannel=True, channel_axis=2, data_range=anonymized.max() - anonymized.min()))
     results['initial_pce'] = float(pce_color(crosscorr_2d_color(original, fingerprint)))
     results['pce'] = float(pce_color(crosscorr_2d_color(anonymized, fingerprint)))
     results['initial_ccn'] = float(ccn_fft(original, fingerprint))
