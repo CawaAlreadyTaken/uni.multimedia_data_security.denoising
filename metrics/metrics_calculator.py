@@ -42,6 +42,23 @@ def compute_metrics(original_path, anonymized_path, fingerprint):
 
     return (os.path.basename(original_path), results)
 
+def compute_pce(original_path, anonymized_path, fingerprint):
+    if not os.path.exists(anonymized_path):
+        return None
+    
+    anonymized = cv2.imread(anonymized_path)
+    if anonymized is None:
+        return None
+
+    anonymized = rotate_image(anonymized.astype(np.float32), original_path)
+    if anonymized is None:
+        return None
+
+    return float(pce_color(crosscorr_2d_color(anonymized, fingerprint)))
+
+
+
+
 def main(chosen_devices: list[str], anonymized_images: str):
     # n_jobs = multiprocessing.cpu_count()
     n_jobs = 14
