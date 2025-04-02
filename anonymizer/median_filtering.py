@@ -58,11 +58,11 @@ def main(devices: list[str]) -> None:
                 _print(v_pce)
                 iter = 0
                 while (v_pce>50 and iter<10):
+                    alpha_2 = alpha_1 + (alpha_1-alpha_0)/10
+                    alpha_0 = alpha_1
+                    alpha_1 = alpha_2
                     for i in range(0,3):
                         noise_residual = img[:,:,i] - img_anonymized[:,:,i]
-                        alpha_2 = alpha_1 + (alpha_1-alpha_0)/10
-                        alpha_0 = alpha_1
-                        alpha_1 = alpha_2
                         noise_residual_first = alpha_2* noise_residual
                         img_anonymized[:,:,i] = img[:,:,i] - noise_residual_first
                         # v_pce = pce(crosscorr_2d(img_anonymized, fingerprint))
