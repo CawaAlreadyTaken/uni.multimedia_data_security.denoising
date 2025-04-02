@@ -52,7 +52,7 @@ def generate_confusion_matrix(algorithms_list, devices_list):
         data_predicted = []
 
         for device in devices_list:
-            files = sorted(glob.glob(OUTPUTPATH+algo_name+'/D'+device+'/*.*'))
+            files = sorted(glob.glob(OUTPUTPATH+algo_name+'/D'+device+'/*.jpg'))
 
             for file in files:
                 original_path = os.path.join(BASEPATH+'D'+device+'/nat/'+os.path.basename(file))
