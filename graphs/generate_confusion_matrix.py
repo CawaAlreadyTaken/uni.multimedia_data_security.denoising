@@ -1,23 +1,25 @@
-import glob
 from utils.constants import BASEPATH, FINGERPRINTSPATH, OUTPUTPATH, OUTPUT_GRAPHS_FOLDER
 from metrics.metrics_calculator import compute_pce
-from matplotlib.patches import Patch
-import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix
-import numpy as np
+import matplotlib.pyplot as plt
+import concurrent.futures
 import seaborn as sns
-import json
+import numpy as np
+import glob
 import os
 
-def find_best_fingerprint(original_path:str,anonymized_path:str):
-    print("Finding best fingerprint for ", anonymized_path)
+
+def find_best_fingerprint(original_path: str, anonymized_path: str):
+    print("Finding best fingerprint for", anonymized_path)
     max_pce = 0
     best_device = 0
-    for device in range(1,36):
-        fingerprint = np.load(FINGERPRINTSPATH + 'Fingerprint_D' + str(device).zfill(2) + '.npy').astype(np.float32)
+    for device in range(1, 36):
+        # Load the fingerprint for the current device
+        fingerprint_file = os.path.join(FINGERPRINTSPATH, f'Fingerprint_D{str(device).zfill(2)}.npy')
+        fingerprint = np.load(fingerprint_file).astype(np.float32)
         fingerprint = np.repeat(fingerprint[..., np.newaxis], 3, axis=2)
-        print("Calculating pce with fingerprint device ", device)
-        pce = compute_pce(original_path,anonymized_path,fingerprint)
+        print("Calculating pce with fingerprint device", device)
+        pce = compute_pce(original_path, anonymized_path, fingerprint)
         if pce is None:
             continue
         if pce > max_pce:
@@ -26,19 +28,23 @@ def find_best_fingerprint(original_path:str,anonymized_path:str):
 
     return str(best_device).zfill(2)
 
-
+def process_file(args):
+    """
+    Helper function to process a single file.
+    Returns a tuple (device, best_device) where:
+      - device: the true device label
+      - best_device: the predicted device label computed by find_best_fingerprint
+    """
+    original_path, anonymized_path, device = args
+    best_device = find_best_fingerprint(original_path, anonymized_path)
+    return device, best_device
 
 def generate_confusion_matrix(algorithms_list, devices_list):
-    
-
     # Mapping from algorithm number to folder name
     algorithm_mapping = {1: "fingerprint_removal", 2: "median_filtering", 3: "adp2"}
 
     # Ensure the output folder exists
     os.makedirs(OUTPUT_GRAPHS_FOLDER, exist_ok=True)
-
-    # Data structure to store pce for each image, one entity for each algorithm
-    data = []
 
     # ------------------------------------------------------------------------------
     # 1) Calculate confusion matrix for each algorithm
@@ -50,39 +56,52 @@ def generate_confusion_matrix(algorithms_list, devices_list):
 
         data_true = []
         data_predicted = []
+        tasks = []
 
+        # Loop through each device and each file in the algorithm's folder
         for device in devices_list:
-            files = sorted(glob.glob(OUTPUTPATH+algo_name+'/D'+device+'/*.jpg'))
-
+            folder_path = os.path.join(OUTPUTPATH, algo_name, 'D' + device)
+            files = sorted(glob.glob(os.path.join(folder_path, '*.jpg')))
             for file in files:
-                original_path = os.path.join(BASEPATH+'D'+device+'/nat/'+os.path.basename(file))
-                data_true.append(device)
-                data_predicted.append(find_best_fingerprint(original_path,file))
-        
+                # Construct the path to the original image
+                original_path = os.path.join(BASEPATH, 'D' + device, 'nat', os.path.basename(file))
+                tasks.append((original_path, file, device))
+
+        # ------------------------------------------------------------------------------
+        # 2) Use ProcessPoolExecutor to parallelize the computation
+        # ------------------------------------------------------------------------------
+        with concurrent.futures.ProcessPoolExecutor(max_workers=14) as executor:
+            results = list(executor.map(process_file, tasks))
+
+        # Collect results from parallel execution
+        for device, best_device in results:
+            data_true.append(device)
+            data_predicted.append(best_device)
+
         np_true = np.array(data_true)
         np_predicted = np.array(data_predicted)
 
+        # Compute confusion matrix using sklearn
         cm = confusion_matrix(np_true, np_predicted)
 
-        # Class labels
-        class_labels = ['D'+x.__str__() for x in range(1,36)]
-
+        # Class labels for devices (D1, D2, ..., D35)
+        class_labels = ['D' + str(x) for x in range(1, 36)]
 
         # ------------------------------------------------------------------------------
-        # 2) Add legend and tighten layout
+        # 3) Plot confusion matrix using seaborn
         # ------------------------------------------------------------------------------
-        plt.figure(figsize=(10,10))
+        plt.figure(figsize=(10, 10))
         sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", xticklabels=class_labels, yticklabels=class_labels)
         plt.xlabel("Predicted Label")
         plt.ylabel("Actual Label")
-        plt.title("Confusion Matrix "+ algo_name)
+        plt.title("Confusion Matrix " + algo_name)
 
         # ------------------------------------------------------------------------------
-        # 3) Save figure to file
+        # 4) Save the figure to file
         # ------------------------------------------------------------------------------
         devices_str = "_".join(devices_list)
         filename = f"confusion_matrix_{algo_name}_{devices_str}.png"
         save_path = os.path.join(OUTPUT_GRAPHS_FOLDER, filename)
         plt.savefig(save_path)
-        # plt.close()
+        plt.close()
         print(f"Saved figure to {save_path}")
