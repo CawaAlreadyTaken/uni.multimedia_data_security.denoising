@@ -70,7 +70,7 @@ def generate_confusion_matrix(algorithms_list, devices_list):
         # ------------------------------------------------------------------------------
         # 2) Use ProcessPoolExecutor to parallelize the computation
         # ------------------------------------------------------------------------------
-        with concurrent.futures.ProcessPoolExecutor(max_workers=14) as executor:
+        with concurrent.futures.ProcessPoolExecutor(max_workers=6) as executor:
             results = list(executor.map(process_file, tasks))
 
         # Collect results from parallel execution

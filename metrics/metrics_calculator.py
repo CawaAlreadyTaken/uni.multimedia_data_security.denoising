@@ -61,7 +61,7 @@ def compute_pce(original_path, anonymized_path, fingerprint):
 
 def main(chosen_devices: list[str], anonymized_images: str):
     # n_jobs = multiprocessing.cpu_count()
-    n_jobs = 14
+    n_jobs = 6
     print("Executing with n_jobs =", n_jobs)
 
     for device in chosen_devices:
