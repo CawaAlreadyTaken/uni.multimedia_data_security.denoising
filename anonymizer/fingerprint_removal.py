@@ -10,9 +10,9 @@ import cv2
 import os
 
 def main(devices_list: list[str]):
-    alpha_min = 0.008
-    alpha_max = 0.04
-    threshold_T = 0.1
+    alpha_min = 0.00001
+    alpha_max = 1.0
+    threshold_T = 1
     max_iters = 10
 
     devices = sorted(glob.glob(BASEPATH+'D*'))
@@ -62,7 +62,7 @@ def denoise_image(img):
         residual: The noise residual, with same shape as `img`.
     """
     # Convert to float32 for safer arithmetic
-    img_f = img.astype(np.float32)
+    img_f = img.astype(np.uint8)
 
     # Wavelet-based denoising
     #   - method='BayesShrink' or 'VisuShrink' can be chosen. 
@@ -195,20 +195,24 @@ def remove_camera_fingerprint(
         Computes abs( c( x(J'), J'*K ) ),
         where x(J') is the noise residual of J',
         and J'*K is the element-wise product.
-        """
         # Noise residual x(J')
         x_Jp = denoise_image(J_prime)  # x(J')
         # Multiply J' * K
         product = J_prime * K
         # Correlation c( x(J'), J'*K )
+        #print(x_Jp)
+        #print()
+        #print(product)
         ccnfft = ccn_paper(x_Jp, product)
         return abs(ccnfft)
+        """
+        return pce_color(crosscorr_2d_color(J_prime, K))
 
     # Initialize
     best_image = J.copy()
     best_corr = correlation_metric(best_image)
     print(f"Best corr: {best_corr}")
-    print(f"Pce prima: {pce_color(crosscorr_2d_color(best_image, fingerprint))}")
+    #print(f"Pce prima: {pce_color(crosscorr_2d_color(best_image, fingerprint))}")
 
     changed_max = False
     changed_min = False
