@@ -2,6 +2,7 @@ from graphs.generate_confusion_matrix import generate_confusion_matrix
 from utils.parse_algorithms_input import parse_algorithms_input
 from graphs.generate_histogram import generate_histogram
 from utils.parse_device_input import parse_device_input
+from graphs.best_worst_metrics import parse_metrics
 
 def menu():
     """
@@ -31,7 +32,7 @@ def menu():
 
         print("------------------------------------------")
         print()
-        graphs_input = input("Consider that (1) = histogram, (2) = confusion matrix\n"
+        graphs_input = input("Consider that (1) = histogram, (2) = confusion matrix, (3) = best_worse results\n"
                                 "Enter the graph(s) number(s) between 1 and 2 to generate.\n"
                                 "You can specify them in these ways:\n"
                                 " - Single graph (e.g. '2')\n" 
@@ -92,6 +93,28 @@ def menu():
 
                 print("Generating confusion matrix graph")
                 generate_confusion_matrix(algorithms_input, chosen_devices)
+
+            elif graph_identifier == 3:
+                print("------------------------------------------")
+                print()
+                print("Consider that (1) = Fingerprint Removal, (2) = Median Filtering, (3) = ADP2")
+                print("Enter the algorithm number(s) between 1 and 3 to process.\n"
+                    "You can specify them in these ways:\n"
+                    " - Single algorithm (e.g. '2')\n"
+                    " - Multiple comma-separated algorithms (e.g. '1,3')\n"
+                    "Otherwise, you can write:")
+                print("all) Apply all three algorithms")
+                print("q) Quit graphs builder, go back")
+
+                choice = input("Select an option: ").strip().lower()
+
+                if choice == 'q':
+                    print("Going back.")
+                    break
+
+                algorithms_input = parse_algorithms_input(choice)
+
+                parse_metrics(algorithms_input, chosen_devices)
             else:
                 continue
 
