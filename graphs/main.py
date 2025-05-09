@@ -2,7 +2,8 @@ from graphs.generate_confusion_matrix import generate_confusion_matrix
 from utils.parse_algorithms_input import parse_algorithms_input
 from graphs.generate_histogram import generate_histogram
 from utils.parse_device_input import parse_device_input
-from graphs.best_worst_metrics import parse_metrics
+from graphs.best_worst_metrics import parse_metrics_absolute_value
+from graphs.best_worst_metrics import parse_metrics_percentage
 
 def menu():
     """
@@ -114,7 +115,13 @@ def menu():
 
                 algorithms_input = parse_algorithms_input(choice)
 
-                parse_metrics(algorithms_input, chosen_devices)
+                parse_metrics_absolute_value(algorithms_input, chosen_devices)
+
+            elif graph_identifier == 4:
+                print("------------------------------------------")
+                print()
+                print("Note that this option always considers all methods\n")
+                parse_metrics_percentage(chosen_devices)
             else:
                 continue
 
