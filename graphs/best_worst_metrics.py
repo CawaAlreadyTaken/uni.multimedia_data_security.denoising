@@ -128,13 +128,26 @@ def parse_metrics_percentage(chosen_devices):
             # load files
             with open(os.path.join(path0_device, "metrics.json"), 'r') as f:
                 metrics0 = json.load(f)
+        try:
+            # load files
+            with open(os.path.join(path0_device, "metrics.json"), 'r') as f:
+                metrics0 = json.load(f)
 
+            with open(os.path.join(path1_device, "metrics.json"), 'r') as f:
+                metrics1 = json.load(f)
             with open(os.path.join(path1_device, "metrics.json"), 'r') as f:
                 metrics1 = json.load(f)
 
             with open(os.path.join(path2_device, "metrics.json"), 'r') as f:
                 metrics2 = json.load(f)
+            with open(os.path.join(path2_device, "metrics.json"), 'r') as f:
+                metrics2 = json.load(f)
 
+            # one image folder is needed 
+            for fname in sorted(glob.glob(os.path.join(path0_device, "*.jpg"))):
+                img_name = str(fname[-18:])
+                # print(img_name)
+                # print("update")
             # one image folder is needed 
             for fname in sorted(glob.glob(os.path.join(path0_device, "*.jpg"))):
                 img_name = str(fname[-18:])
@@ -197,6 +210,12 @@ def parse_metrics_percentage(chosen_devices):
                     
                     
 
+        except FileNotFoundError:
+                print(f"Warning: metric.json not found")
+        except json.JSONDecodeError:
+                print(f"Warning: Invalid JSON in metric.json")
+        except Exception as e:
+                print(f"Warning: Error processing : {str(e)}")
         except FileNotFoundError:
                 print(f"Warning: metric.json not found")
         except json.JSONDecodeError:
