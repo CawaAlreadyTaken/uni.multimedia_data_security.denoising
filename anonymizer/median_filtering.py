@@ -1,5 +1,5 @@
 from utils.cross_correlation import crosscorr_2d, crosscorr_2d_color
-from utils.constants import OUTPUTPATH, BASEPATH, FINGERPRINTSPATH
+from utils.constants import OUTPUTPATH, BASEPATH, FINGERPRINTSPATH_ANONYMIZATION
 from utils.rotate_image import rotate_image, rotate_back_image
 from utils.pce import pce, pce_color
 import numpy as np
@@ -20,7 +20,7 @@ def median_filter(image, kernel_size: int):
 def main(devices: list[str]) -> None:
     base_path = os.path.join(BASEPATH, 'D')
     save_path = os.path.join(OUTPUTPATH, 'median_filtering', 'D')
-    fingerprint_base = os.path.join(FINGERPRINTSPATH, "Fingerprint_D")
+    fingerprint_base = os.path.join(FINGERPRINTSPATH_ANONYMIZATION, "Fingerprint_D")
 
     for device in devices:
         # Cache fingerprint for the device (load it once)

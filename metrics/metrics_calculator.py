@@ -1,5 +1,5 @@
 from skimage.metrics import structural_similarity as ssim
-from utils.constants import BASEPATH, FINGERPRINTSPATH
+from utils.constants import BASEPATH, FINGERPRINTSPATH_EVALUATION
 from utils.cross_correlation import crosscorr_2d_color
 from utils.rotate_image import rotate_image
 from joblib import Parallel, delayed
@@ -67,7 +67,7 @@ def main(chosen_devices: list[str], anonymized_images: str):
     for device in chosen_devices:
         files = sorted(glob.glob(BASEPATH + 'D' + device + '/nat/*.*'))
         
-        fp_path = os.path.join(FINGERPRINTSPATH, f'Fingerprint_D{device}.npy')
+        fp_path = os.path.join(FINGERPRINTSPATH_EVALUATION, f'Fingerprint_D{device}.npy')
         fingerprint = np.load(fp_path).astype(np.float32)
         fingerprint = np.repeat(fingerprint[..., np.newaxis], 3, axis=2)
 

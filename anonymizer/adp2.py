@@ -1,5 +1,5 @@
 from utils.cross_correlation import crosscorr_2d, crosscorr_2d_color
-from utils.constants import BASEPATH, OUTPUTPATH, FINGERPRINTSPATH
+from utils.constants import BASEPATH, OUTPUTPATH, FINGERPRINTSPATH_ANONYMIZATION
 from utils.pce import pce, pce_color
 from utils.rotate_image import rotate_image, rotate_back_image
 import numpy as np
@@ -44,7 +44,7 @@ def anonymize_image(image, prnu_estimate, threshold=50):
 def main(chosen_devices: list):
     for device in chosen_devices:
         files = sorted(glob.glob(BASEPATH + 'D' + device +'/nat/*.*'))
-        fingerprint = np.load(FINGERPRINTSPATH + 'Fingerprint_D' + device + '.npy').astype(np.float32)
+        fingerprint = np.load(FINGERPRINTSPATH_ANONYMIZATION + 'Fingerprint_D' + device + '.npy').astype(np.float32)
         fingerprint = np.repeat(fingerprint[..., np.newaxis], 3, axis=2)
         output_folder = OUTPUTPATH + 'adp2/D' + device + '/'
 
