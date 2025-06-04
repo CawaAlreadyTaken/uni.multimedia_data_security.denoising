@@ -12,6 +12,7 @@ def parse_metrics_absolute_value(algorithms, chosen_devices):
     algorithm_mapping = {1: "fingerprint_removal", 2: "median_filtering", 3: "adp2"}
 
     for algorithm in algorithms:
+        print(algorithm)
         # bigger is better
         best_wpsnr = 0.0 
         best_ssim = 0.0 

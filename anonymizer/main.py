@@ -1,6 +1,6 @@
 from anonymizer.fingerprint_removal import main as fingerprint_removal
 from anonymizer.median_filtering import main as median_filtering
-from utils.parse_device_input import parse_device_input
+from utils.to_remove import parse_device_input
 from anonymizer.adp2 import main as adp2
 
 def menu():

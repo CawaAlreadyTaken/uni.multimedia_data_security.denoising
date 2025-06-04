@@ -1,4 +1,4 @@
-from utils.parse_device_input import parse_device_input
+from utils.to_remove import parse_device_input
 from utils.constants import OUTPUTPATH
 from metrics.metrics_calculator import main as metrics_calculator
 
