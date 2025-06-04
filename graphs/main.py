@@ -33,7 +33,7 @@ def menu():
 
         print("------------------------------------------")
         print()
-        graphs_input = input("Consider that (1) = histogram, (2) = confusion matrix, (3) = best_worse results\n"
+        graphs_input = input("Consider that (1) = histogram, (2) = confusion matrix, (3) = best_worse results, (4) = winning percentage\n"
                                 "Enter the graph(s) number(s) between 1 and 2 to generate.\n"
                                 "You can specify them in these ways:\n"
                                 " - Single graph (e.g. '2')\n" 

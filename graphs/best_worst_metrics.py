@@ -23,10 +23,19 @@ def parse_metrics_absolute_value(algorithms, chosen_devices):
         worst_delta_ccn = sys.float_info.max
         worst_delta_pce = sys.float_info.max
 
+        mean_wpsnr = 0.0
+        mean_ssim =  0.0
+        mean_delta_ccn = 0.0
+        mean_delta_pce = 0.0
+
+        tot_counter = 0
+        tot_counter_pce = 0
+        tot_counter_ccn = 0
+
         print("finding best and worst result for ", algorithm_mapping.get(algorithm))
 
         for device in chosen_devices:
-            print("calc device ", device)
+            # print("calc device ", device)
             path= os.path.join(OUTPUTPATH, algorithm_mapping.get(algorithm), "D"+str(device).zfill(2))
 
             try:
@@ -35,28 +44,39 @@ def parse_metrics_absolute_value(algorithms, chosen_devices):
 
                     for fname in glob.glob(os.path.join(path, "*.jpg")):
                         img_name = str(fname[-18:])
+
+                        tot_counter +=1
+
                         if metrics[img_name]["wpsnr"]>best_wpsnr:
                             best_wpsnr = metrics[img_name]["wpsnr"]
                         if metrics[img_name]["wpsnr"]<worst_wpsnr:
                             worst_wpsnr = metrics[img_name]["wpsnr"]
+                        mean_wpsnr += metrics[img_name]["wpsnr"]
 
                         if metrics[img_name]["ssim"]>best_ssim:
                             best_ssim = metrics[img_name]["ssim"]
                         if metrics[img_name]["ssim"]<worst_ssim:
                             worst_ssim = metrics[img_name]["ssim"]
+                        mean_ssim += metrics[img_name]["ssim"]
                     
                         if metrics[img_name]["initial_pce"]- metrics[img_name]["pce"]>best_delta_pce:
                             best_delta_pce = metrics[img_name]["initial_pce"]- metrics[img_name]["pce"]
                         if metrics[img_name]["initial_pce"]- metrics[img_name]["pce"]<worst_delta_pce:
                             worst_delta_pce = metrics[img_name]["initial_pce"]- metrics[img_name]["pce"]
+                        if metrics[img_name]["initial_pce"]- metrics[img_name]["pce"]>0:
+                            mean_delta_pce += metrics[img_name]["initial_pce"]- metrics[img_name]["pce"]
+                            tot_counter_pce +=1
 
                         if metrics[img_name]["initial_ccn"]- metrics[img_name]["ccn"]>best_delta_ccn:
                             best_delta_ccn = metrics[img_name]["initial_ccn"]- metrics[img_name]["ccn"]
                         if metrics[img_name]["initial_ccn"]- metrics[img_name]["ccn"]<worst_delta_ccn:
                             worst_delta_ccn = metrics[img_name]["initial_ccn"]- metrics[img_name]["ccn"]
+                        if metrics[img_name]["initial_ccn"]- metrics[img_name]["ccn"] > 0:
+                            mean_delta_ccn += metrics[img_name]["initial_ccn"]- metrics[img_name]["ccn"]
+                            tot_counter_ccn += 1
 
-    
                     
+
 
             except FileNotFoundError:
                 print(f"Warning: metric.json not found in {path}")
@@ -69,12 +89,18 @@ def parse_metrics_absolute_value(algorithms, chosen_devices):
         print("best ssim: ", best_ssim)
         print("best delta_pce: ", best_delta_pce)
         print("best delta_ccn: ", best_delta_ccn)
-        print("---")
+        print("----------------------------------")
         print("worst wpsnr: ", worst_wpsnr)
         print("worst ssim: ", worst_ssim)
         print("worst delta_pce: ", worst_delta_pce)
         print("worst delta_ccn: ", worst_delta_ccn)
         print("----------------------------------")
+        print("on ", tot_counter, "images")
+        print("mean wpsnr: ", mean_wpsnr/tot_counter)
+        print("mean ssim: ", mean_ssim/tot_counter)
+        print("mean delta_pce on", tot_counter_pce, "images : ", mean_delta_pce/tot_counter_pce)
+        print("mean delta_ccn: ", tot_counter_ccn, "images : ", mean_delta_ccn/tot_counter_ccn)
+        print("\n\n")
 
 
 def parse_metrics_percentage(chosen_devices):
@@ -100,13 +126,26 @@ def parse_metrics_percentage(chosen_devices):
             # load files
             with open(os.path.join(path0_device, "metrics.json"), 'r') as f:
                 metrics0 = json.load(f)
+        try:
+            # load files
+            with open(os.path.join(path0_device, "metrics.json"), 'r') as f:
+                metrics0 = json.load(f)
 
+            with open(os.path.join(path1_device, "metrics.json"), 'r') as f:
+                metrics1 = json.load(f)
             with open(os.path.join(path1_device, "metrics.json"), 'r') as f:
                 metrics1 = json.load(f)
 
             with open(os.path.join(path2_device, "metrics.json"), 'r') as f:
                 metrics2 = json.load(f)
+            with open(os.path.join(path2_device, "metrics.json"), 'r') as f:
+                metrics2 = json.load(f)
 
+            # one image folder is needed 
+            for fname in sorted(glob.glob(os.path.join(path0_device, "*.jpg"))):
+                img_name = str(fname[-18:])
+                # print(img_name)
+                # print("update")
             # one image folder is needed 
             for fname in sorted(glob.glob(os.path.join(path0_device, "*.jpg"))):
                 img_name = str(fname[-18:])
@@ -133,13 +172,29 @@ def parse_metrics_percentage(chosen_devices):
                     delta2 = metrics2[img_name]["initial_pce"]- metrics2[img_name]["pce"]
                     index_of_max = max(enumerate([delta0, delta1, delta2]), key=lambda x: x[1])[0]
                     best_delta_pce_count[index_of_max] += 1
+                    delta0 = metrics0[img_name]["initial_pce"]- metrics0[img_name]["pce"]
+                    delta1 = metrics1[img_name]["initial_pce"]- metrics1[img_name]["pce"]
+                    delta2 = metrics2[img_name]["initial_pce"]- metrics2[img_name]["pce"]
+                    index_of_max = max(enumerate([delta0, delta1, delta2]), key=lambda x: x[1])[0]
+                    best_delta_pce_count[index_of_max] += 1
 
                     delta0 = metrics0[img_name]["initial_ccn"]- metrics0[img_name]["ccn"]
                     delta1 = metrics1[img_name]["initial_ccn"]- metrics1[img_name]["ccn"]
                     delta2 = metrics2[img_name]["initial_ccn"]- metrics2[img_name]["ccn"]
                     index_of_max = max(enumerate([delta0, delta1, delta2]), key=lambda x: x[1])[0]
                     best_delta_ccn_count[index_of_max] += 1
+                    delta0 = metrics0[img_name]["initial_ccn"]- metrics0[img_name]["ccn"]
+                    delta1 = metrics1[img_name]["initial_ccn"]- metrics1[img_name]["ccn"]
+                    delta2 = metrics2[img_name]["initial_ccn"]- metrics2[img_name]["ccn"]
+                    index_of_max = max(enumerate([delta0, delta1, delta2]), key=lambda x: x[1])[0]
+                    best_delta_ccn_count[index_of_max] += 1
 
+        except FileNotFoundError:
+                print(f"Warning: metric.json not found")
+        except json.JSONDecodeError:
+                print(f"Warning: Invalid JSON in metric.json")
+        except Exception as e:
+                print(f"Warning: Error processing : {str(e)}")
         except FileNotFoundError:
                 print(f"Warning: metric.json not found")
         except json.JSONDecodeError:
