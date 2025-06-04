@@ -96,56 +96,56 @@ def parse_metrics_percentage(chosen_devices):
         path1_device = os.path.join(path1, "D"+str(device).zfill(2))
         path2_device = os.path.join(path2, "D"+str(device).zfill(2))
 
-    try:
-        # load files
-        with open(os.path.join(path0_device, "metrics.json"), 'r') as f:
-            metrics0 = json.load(f)
+        try:
+            # load files
+            with open(os.path.join(path0_device, "metrics.json"), 'r') as f:
+                metrics0 = json.load(f)
 
-        with open(os.path.join(path1_device, "metrics.json"), 'r') as f:
-            metrics1 = json.load(f)
+            with open(os.path.join(path1_device, "metrics.json"), 'r') as f:
+                metrics1 = json.load(f)
 
-        with open(os.path.join(path2_device, "metrics.json"), 'r') as f:
-            metrics2 = json.load(f)
+            with open(os.path.join(path2_device, "metrics.json"), 'r') as f:
+                metrics2 = json.load(f)
 
-        # one image folder is needed 
-        for fname in sorted(glob.glob(os.path.join(path0_device, "*.jpg"))):
-            img_name = str(fname[-18:])
-            # print(img_name)
-            # print("update")
+            # one image folder is needed 
+            for fname in sorted(glob.glob(os.path.join(path0_device, "*.jpg"))):
+                img_name = str(fname[-18:])
+                # print(img_name)
+                # print("update")
 
-            if img_name not in metrics0: 
-                print(img_name, " not existing in ", algorithms[0])
-            elif img_name not in metrics1: 
-                print(img_name, " not existing in ", algorithms[1])
-            elif img_name not in metrics2: 
-                print(img_name, " not existing in ", algorithms[2])
-            else:
-                total_img += 1
-                index_of_max = max(enumerate([metrics0[img_name]["wpsnr"], metrics1[img_name]["wpsnr"], metrics2[img_name]["wpsnr"]]), key=lambda x: x[1])[0]
-                best_wpsnr_count[index_of_max] += 1
+                if img_name not in metrics0: 
+                    print(img_name, " not existing in ", algorithms[0])
+                elif img_name not in metrics1: 
+                    print(img_name, " not existing in ", algorithms[1])
+                elif img_name not in metrics2: 
+                    print(img_name, " not existing in ", algorithms[2])
+                else:
+                    total_img += 1
+                    index_of_max = max(enumerate([metrics0[img_name]["wpsnr"], metrics1[img_name]["wpsnr"], metrics2[img_name]["wpsnr"]]), key=lambda x: x[1])[0]
+                    best_wpsnr_count[index_of_max] += 1
 
-                index_of_max = max(enumerate([metrics0[img_name]["ssim"], metrics1[img_name]["ssim"], metrics2[img_name]["ssim"]]), key=lambda x: x[1])[0]
-                best_ssim_count[index_of_max] += 1
+                    index_of_max = max(enumerate([metrics0[img_name]["ssim"], metrics1[img_name]["ssim"], metrics2[img_name]["ssim"]]), key=lambda x: x[1])[0]
+                    best_ssim_count[index_of_max] += 1
 
 
-                delta0 = metrics0[img_name]["initial_pce"]- metrics0[img_name]["pce"]
-                delta1 = metrics1[img_name]["initial_pce"]- metrics1[img_name]["pce"]
-                delta2 = metrics2[img_name]["initial_pce"]- metrics2[img_name]["pce"]
-                index_of_max = max(enumerate([delta0, delta1, delta2]), key=lambda x: x[1])[0]
-                best_delta_pce_count[index_of_max] += 1
+                    delta0 = metrics0[img_name]["initial_pce"]- metrics0[img_name]["pce"]
+                    delta1 = metrics1[img_name]["initial_pce"]- metrics1[img_name]["pce"]
+                    delta2 = metrics2[img_name]["initial_pce"]- metrics2[img_name]["pce"]
+                    index_of_max = max(enumerate([delta0, delta1, delta2]), key=lambda x: x[1])[0]
+                    best_delta_pce_count[index_of_max] += 1
 
-                delta0 = metrics0[img_name]["initial_ccn"]- metrics0[img_name]["ccn"]
-                delta1 = metrics1[img_name]["initial_ccn"]- metrics1[img_name]["ccn"]
-                delta2 = metrics2[img_name]["initial_ccn"]- metrics2[img_name]["ccn"]
-                index_of_max = max(enumerate([delta0, delta1, delta2]), key=lambda x: x[1])[0]
-                best_delta_ccn_count[index_of_max] += 1
+                    delta0 = metrics0[img_name]["initial_ccn"]- metrics0[img_name]["ccn"]
+                    delta1 = metrics1[img_name]["initial_ccn"]- metrics1[img_name]["ccn"]
+                    delta2 = metrics2[img_name]["initial_ccn"]- metrics2[img_name]["ccn"]
+                    index_of_max = max(enumerate([delta0, delta1, delta2]), key=lambda x: x[1])[0]
+                    best_delta_ccn_count[index_of_max] += 1
 
-    except FileNotFoundError:
-            print(f"Warning: metric.json not found")
-    except json.JSONDecodeError:
-            print(f"Warning: Invalid JSON in metric.json")
-    except Exception as e:
-            print(f"Warning: Error processing : {str(e)}")
+        except FileNotFoundError:
+                print(f"Warning: metric.json not found")
+        except json.JSONDecodeError:
+                print(f"Warning: Invalid JSON in metric.json")
+        except Exception as e:
+                print(f"Warning: Error processing : {str(e)}")
 
 
     if(total_img==0):

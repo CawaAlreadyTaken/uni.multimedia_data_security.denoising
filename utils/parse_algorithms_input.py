@@ -9,12 +9,12 @@ def parse_algorithms_input(input_str):
     algorithms = set()  # use a set to avoid duplicates
 
     if input_str == 'all':
-        return [1, 2, 3]
+        return [1, 2, 3, 4]
 
     for part in input_str.split(','):
         try:
             num = int(part)
-            if 1 <= num <= 3:
+            if 1 <= num <= 4:
                 algorithms.add(num)
         except ValueError:
             pass
