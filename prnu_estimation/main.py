@@ -1,4 +1,4 @@
-from utils.parse_device_input import parse_device_input
+from utils.parse_input import parse_device_input
 from utils.extraction import extract_multiple_aligned
 from utils.rotate_image import rotate_image
 from multiprocessing import cpu_count
