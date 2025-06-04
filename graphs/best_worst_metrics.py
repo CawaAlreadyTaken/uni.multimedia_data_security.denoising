@@ -68,6 +68,8 @@ def parse_metrics_absolute_value(algorithms, chosen_devices):
                             if metrics[img_name]["initial_pce"]- metrics[img_name]["pce"]>0:
                                 mean_delta_pce += metrics[img_name]["initial_pce"]- metrics[img_name]["pce"]
                                 tot_counter_pce +=1
+                            # else:
+                            #     print("Attenzione, initial-> ", metrics[img_name]["initial_pce"], "pce-> ", metrics[img_name]["pce"])
 
                             if metrics[img_name]["initial_ccn"]- metrics[img_name]["ccn"]>best_delta_ccn:
                                 best_delta_ccn = metrics[img_name]["initial_ccn"]- metrics[img_name]["ccn"]
@@ -76,6 +78,8 @@ def parse_metrics_absolute_value(algorithms, chosen_devices):
                             if metrics[img_name]["initial_ccn"]- metrics[img_name]["ccn"] > 0:
                                 mean_delta_ccn += metrics[img_name]["initial_ccn"]- metrics[img_name]["ccn"]
                                 tot_counter_ccn += 1
+                            # else:
+                            #     print("Attenzione, initial-> ", metrics[img_name]["initial_ccn"], "ccn-> ", metrics[img_name]["ccn"])
 
                     
 
@@ -128,18 +132,10 @@ def parse_metrics_percentage(chosen_devices):
             # load files
             with open(os.path.join(path0_device, "metrics.json"), 'r') as f:
                 metrics0 = json.load(f)
-        try:
-            # load files
-            with open(os.path.join(path0_device, "metrics.json"), 'r') as f:
-                metrics0 = json.load(f)
 
             with open(os.path.join(path1_device, "metrics.json"), 'r') as f:
                 metrics1 = json.load(f)
-            with open(os.path.join(path1_device, "metrics.json"), 'r') as f:
-                metrics1 = json.load(f)
 
-            with open(os.path.join(path2_device, "metrics.json"), 'r') as f:
-                metrics2 = json.load(f)
             with open(os.path.join(path2_device, "metrics.json"), 'r') as f:
                 metrics2 = json.load(f)
 
