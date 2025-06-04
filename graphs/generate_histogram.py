@@ -15,7 +15,7 @@ def generate_histogram(algorithms_list, devices_list):
     
     Parameters:
         algorithms_list (list): List of algorithm identifiers (1, 2, or 3).
-            Mapping: 1 -> "fingerprint_removal", 2 -> "median_filtering", 3 -> "adp2".
+            Mapping: 1 -> "fingerprint_removal", 2 -> "median_filtering", 3 -> "apd2".
         devices_list (list): List of device strings ("01" to "35").
         
     The metrics are read from files with path:
@@ -72,11 +72,12 @@ def generate_histogram(algorithms_list, devices_list):
             if len(devices_list) == 1:
                 # For a single device, store per-image values.
                 for image_name, values in metrics.items():
-                    wpsnr = values.get("wpsnr", 0)
-                    ssim = values.get("ssim", 0)
-                    diff_pce = max(values.get("initial_pce", 0) - values.get("pce", 0), 0)
-                    diff_ccn = max(values.get("initial_ccn", 0) - values.get("ccn", 0), 0)
-                    data[algo_name][image_name] = (wpsnr, ssim, diff_pce, diff_ccn)
+                    if values.get("pce") <= 50:
+                        wpsnr = values.get("wpsnr")
+                        ssim = values.get("ssim")
+                        diff_pce = max(values.get("initial_pce") - values.get("pce"), 0) / values.get("initial_pce")
+                        diff_ccn = max(values.get("initial_ccn") - values.get("ccn"), 0) / values.get("initial_ccn")
+                        data[algo_name][image_name] = (wpsnr, ssim, diff_pce, diff_ccn)
             else:
                 # For multiple devices, compute the average over all images for this device.
                 wpsnr_vals = []
@@ -84,10 +85,11 @@ def generate_histogram(algorithms_list, devices_list):
                 diff_pce_vals = []
                 diff_ccn_vals = []
                 for image_name, values in metrics.items():
-                    wpsnr_vals.append(values.get("wpsnr", 0))
-                    ssim_vals.append(values.get("ssim", 0))
-                    diff_pce_vals.append(max(values.get("initial_pce", 0) - values.get("pce", 0), 0))
-                    diff_ccn_vals.append(max(values.get("initial_ccn", 0) - values.get("ccn", 0), 0))
+                    if values.get("pce") <= 50:
+                        wpsnr_vals.append(values.get("wpsnr"))
+                        ssim_vals.append(values.get("ssim"))
+                        diff_pce_vals.append(max(values.get("initial_pce") - values.get("pce"), 0) / values.get("initial_pce"))
+                        diff_ccn_vals.append(max(values.get("initial_ccn") - values.get("ccn"), 0) / values.get("initial_ccn"))
                 if len(wpsnr_vals) > 0:
                     avg_wpsnr = np.mean(wpsnr_vals)
                     avg_ssim = np.mean(ssim_vals)
@@ -141,8 +143,8 @@ def generate_histogram(algorithms_list, devices_list):
         
         ax_wpsnr.set_ylabel("WPSNR")
         ax_ssim.set_ylabel("SSIM")
-        ax_pce.set_ylabel("Initial_PCE - PCE")
-        ax_ccn.set_ylabel("Initial_CCN - CCN")
+        ax_pce.set_ylabel("Delta PCE (%)")
+        ax_ccn.set_ylabel("Delta CCN (%)")
         
         if len(image_names) > 10:
             step = max(1, len(image_names) // 10)  # show at most ~10 labels
@@ -183,11 +185,11 @@ def generate_histogram(algorithms_list, devices_list):
         
         ax_wpsnr.set_ylabel("WPSNR")
         ax_ssim.set_ylabel("SSIM")
-        ax_pce.set_ylabel("Initial_PCE - PCE")
-        ax_ccn.set_ylabel("Initial_CCN - CCN")
+        ax_pce.set_ylabel("Delta PCE (%)")
+        ax_ccn.set_ylabel("Delta CCN (%)")
 
         ax_ccn.set_xticks(x)
-        ax_ccn.set_xticklabels([f"D{dev}" for dev in devices_sorted])
+        ax_ccn.set_xticklabels([f"{dev}" for dev in devices_sorted])
 
         fig.suptitle("Metrics per Device")
     
