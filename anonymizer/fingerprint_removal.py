@@ -1,4 +1,4 @@
-from utils.constants import BASEPATH, OUTPUTPATH, FINGERPRINTSPATH_ANONYMIZATION
+from utils.constants import BASEPATH, OUTPUTPATH, FINGERPRINTSPATH_ANONYMIZATION_K1, FINGERPRINTSPATH_ANONYMIZATION_K2
 from utils.rotate_image import rotate_image, rotate_back_image
 from utils.cross_correlation import crosscorr_2d_color
 from skimage.restoration import denoise_wavelet
@@ -22,10 +22,12 @@ def main(devices_list: list[str]):
             continue
         files = sorted(glob.glob(device_path + '/nat/*.*'))
         output_folder = OUTPUTPATH + 'fingerprint_removal/D' + device_path[-2:] + '/'
-        fingerprints_file = FINGERPRINTSPATH_ANONYMIZATION + 'Fingerprint_D' + device_path[-2:] + '.npy'
-        estimated_fingerprint = np.load(fingerprints_file)
+        fingerprints_file_k1 = FINGERPRINTSPATH_ANONYMIZATION_K1 + 'Fingerprint_D' + device_path[-2:] + '.npy'
+        fingerprints_file_k1 = FINGERPRINTSPATH_ANONYMIZATION_K2 + 'Fingerprint_D' + device_path[-2:] + '.npy'
+        estimated_fingerprint_k1 = np.load(fingerprints_file_k1)
+        estimated_fingerprint_k2 = np.load(fingerprints_file_k2)
         for img_name in files:
-            # Load 'original_image' and 'estimated_fingerprint' as NumPy arrays.
+            # Load 'original_image' and estimated fingerprints as NumPy arrays.
             print(f"[ANONYMIZING fingerprint_removal] {img_name}")
             # original_image = cv2.imread(img_name, cv2.IMREAD_GRAYSCALE).astype(np.float32)
             original_image = cv2.imread(img_name).astype(np.float32)
@@ -35,7 +37,8 @@ def main(devices_list: list[str]):
 
             altered = remove_camera_fingerprint(
                 original_image,
-                estimated_fingerprint,
+                estimated_fingerprint_k1,
+                estimated_fingerprint_k2,
                 alpha_min,
                 alpha_max,
                 threshold_T,
@@ -147,7 +150,8 @@ def ccn_paper(x, y, neighbors=30):
 
 def remove_camera_fingerprint(
     image: np.ndarray,
-    fingerprint: np.ndarray,
+    fingerprint_k1: np.ndarray,
+    fingerprint_k2: np.ndarray,
     alpha_min: float,
     alpha_max: float,
     T: float,
@@ -163,8 +167,11 @@ def remove_camera_fingerprint(
     -----------
     image         : np.ndarray
         The original (unaltered) input image, shape (H, W) or (H, W, C).
-    fingerprint   : np.ndarray
-        The estimated PRNU fingerprint for the camera. Must match
+    fingerprint_k1: np.ndarray
+        The estimated PRNU fingerprint for the camera, with some images. Must match
+        the shape of the image or be broadcastable.
+    fingerprint_k2: np.ndarray
+        The estimated PRNU fingerprint for the camera, with other images. Must match
         the shape of the image or be broadcastable.
     alpha_min     : float
         The initial minimum strength for the search range.
@@ -185,9 +192,12 @@ def remove_camera_fingerprint(
     """
     # Copy the input so as not to overwrite
     J = image.astype(np.float32).copy()
-    if image.ndim == 3 and fingerprint.ndim == 2:
-        fingerprint = np.repeat(fingerprint[..., np.newaxis], 3, axis=2)
-    K = fingerprint.astype(np.float32)
+    if image.ndim == 3 and fingerprint_k1.ndim == 2:
+        fingerprint_k1 = np.repeat(fingerprint_k1[..., np.newaxis], 3, axis=2)
+    if image.ndim == 3 and fingerprint_k2.ndim == 2:
+        fingerprint_k2 = np.repeat(fingerprint_k2[..., np.newaxis], 3, axis=2)
+    K1 = fingerprint_k1.astype(np.float32)
+    K2 = fingerprint_k2.astype(np.float32)
 
     # A helper to compute the correlation c(x(J'), J'*K) from the paper.
     def correlation_metric(J_prime):
@@ -206,18 +216,17 @@ def remove_camera_fingerprint(
         ccnfft = ccn_paper(x_Jp, product)
         return abs(ccnfft)
         """
-        return pce_color(crosscorr_2d_color(J_prime, K))
+        return pce_color(crosscorr_2d_color(J_prime, K2))
 
     # Initialize
     best_image = J.copy()
     best_corr = correlation_metric(best_image)
     print(f"Best corr: {best_corr}")
-    #print(f"Pce prima: {pce_color(crosscorr_2d_color(best_image, fingerprint))}")
 
     changed_max = False
     changed_min = False
-    J_max = J * (1.0 - alpha_max * K)
-    J_min = J * (1.0 - alpha_min * K)
+    J_max = J * (1.0 - alpha_max * K1)
+    J_min = J * (1.0 - alpha_min * K1)
     corr_max = correlation_metric(J_max)
     corr_min = correlation_metric(J_min)
     modified = False
@@ -226,7 +235,7 @@ def remove_camera_fingerprint(
     for _ in range(max_iterations):
         # Candidate with alpha_max
         if changed_max:
-            J_max = J * (1.0 - alpha_max * K)
+            J_max = J * (1.0 - alpha_max * K1)
             corr_max = correlation_metric(J_max)
             changed_max = False
         print(f"corr_max: {corr_max}")
@@ -238,7 +247,7 @@ def remove_camera_fingerprint(
 
         # Candidate with alpha_min
         if changed_min:
-            J_min = J * (1.0 - alpha_min * K)
+            J_min = J * (1.0 - alpha_min * K1)
             corr_min = correlation_metric(J_min)
             changed_min = False
         print(f"corr_min: {corr_min}")
@@ -266,7 +275,8 @@ def remove_camera_fingerprint(
                 best_corr = corr_max
                 modified = True
 
-    print(f"Pce dopo: {pce_color(crosscorr_2d_color(best_image, fingerprint))}")
+    print(f"Pce k1 dopo: {pce_color(crosscorr_2d_color(best_image, fingerprint_k1))}")
+    print(f"Pce k2 dopo: {pce_color(crosscorr_2d_color(best_image, fingerprint_k2))}")
 
     if not modified:
         return None
