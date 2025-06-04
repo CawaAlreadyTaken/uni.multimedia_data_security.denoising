@@ -12,7 +12,6 @@ def parse_metrics_absolute_value(algorithms, chosen_devices):
     algorithm_mapping = {1: "fingerprint_removal", 2: "median_filtering", 3: "adp2"}
 
     for algorithm in algorithms:
-        print(algorithm)
         # bigger is better
         best_wpsnr = 0.0 
         best_ssim = 0.0 
@@ -29,7 +28,8 @@ def parse_metrics_absolute_value(algorithms, chosen_devices):
         mean_delta_ccn = 0.0
         mean_delta_pce = 0.0
 
-        tot_counter = 0
+        tot_anon_counter = 0
+        tot_images = 0
         tot_counter_pce = 0
         tot_counter_ccn = 0
 
@@ -45,10 +45,11 @@ def parse_metrics_absolute_value(algorithms, chosen_devices):
 
                     for fname in glob.glob(os.path.join(path, "*.jpg")):
                         img_name = str(fname[-18:])
+                        tot_images +=1
 
                         
-                        if metrics[img_name]["pce"]<=50.0: #otherwise it is considered not anonymized
-                            tot_counter +=1
+                        if metrics[img_name]["pce"]<=50.0 and metrics[img_name]["initial_pce"]- metrics[img_name]["pce"]>0: #otherwise it is considered not anonymized
+                            tot_anon_counter +=1
 
                             if metrics[img_name]["wpsnr"]>best_wpsnr:
                                 best_wpsnr = metrics[img_name]["wpsnr"]
@@ -62,22 +63,22 @@ def parse_metrics_absolute_value(algorithms, chosen_devices):
                                 worst_ssim = metrics[img_name]["ssim"]
                             mean_ssim += metrics[img_name]["ssim"]
                         
-                            if metrics[img_name]["initial_pce"]- metrics[img_name]["pce"]>best_delta_pce:
-                                best_delta_pce = metrics[img_name]["initial_pce"]- metrics[img_name]["pce"]
-                            if metrics[img_name]["initial_pce"]- metrics[img_name]["pce"]<worst_delta_pce:
-                                worst_delta_pce = metrics[img_name]["initial_pce"]- metrics[img_name]["pce"]
-                            if metrics[img_name]["initial_pce"]- metrics[img_name]["pce"]>0:
-                                mean_delta_pce += metrics[img_name]["initial_pce"]- metrics[img_name]["pce"]
+                            if (metrics[img_name]["initial_pce"]- metrics[img_name]["pce"])/metrics[img_name]["initial_pce"] > best_delta_pce:
+                                best_delta_pce = (metrics[img_name]["initial_pce"]- metrics[img_name]["pce"])/metrics[img_name]["initial_pce"]
+                            if (metrics[img_name]["initial_pce"]- metrics[img_name]["pce"])/metrics[img_name]["initial_pce"] < worst_delta_pce:
+                                worst_delta_pce = (metrics[img_name]["initial_pce"]- metrics[img_name]["pce"])/metrics[img_name]["initial_pce"] 
+                            if (metrics[img_name]["initial_pce"]- metrics[img_name]["pce"])/metrics[img_name]["initial_pce"] >0:
+                                mean_delta_pce += (metrics[img_name]["initial_pce"]- metrics[img_name]["pce"])/metrics[img_name]["initial_pce"] 
                                 tot_counter_pce +=1
                             # else:
                             #     print("Attenzione, initial-> ", metrics[img_name]["initial_pce"], "pce-> ", metrics[img_name]["pce"])
 
-                            if metrics[img_name]["initial_ccn"]- metrics[img_name]["ccn"]>best_delta_ccn:
-                                best_delta_ccn = metrics[img_name]["initial_ccn"]- metrics[img_name]["ccn"]
-                            if metrics[img_name]["initial_ccn"]- metrics[img_name]["ccn"]<worst_delta_ccn:
-                                worst_delta_ccn = metrics[img_name]["initial_ccn"]- metrics[img_name]["ccn"]
-                            if metrics[img_name]["initial_ccn"]- metrics[img_name]["ccn"] > 0:
-                                mean_delta_ccn += metrics[img_name]["initial_ccn"]- metrics[img_name]["ccn"]
+                            if (metrics[img_name]["initial_ccn"]- metrics[img_name]["ccn"])/metrics[img_name]["initial_ccn"] > best_delta_ccn:
+                                best_delta_ccn = (metrics[img_name]["initial_ccn"]- metrics[img_name]["ccn"])/metrics[img_name]["initial_ccn"]
+                            if (metrics[img_name]["initial_ccn"]- metrics[img_name]["ccn"])/metrics[img_name]["initial_ccn"] < worst_delta_ccn:
+                                worst_delta_ccn = (metrics[img_name]["initial_ccn"]- metrics[img_name]["ccn"])/metrics[img_name]["initial_ccn"]
+                            if (metrics[img_name]["initial_ccn"]- metrics[img_name]["ccn"])/metrics[img_name]["initial_ccn"] > 0:
+                                mean_delta_ccn += (metrics[img_name]["initial_ccn"]- metrics[img_name]["ccn"])/metrics[img_name]["initial_ccn"]
                                 tot_counter_ccn += 1
                             # else:
                             #     print("Attenzione, initial-> ", metrics[img_name]["initial_ccn"], "ccn-> ", metrics[img_name]["ccn"])
@@ -92,21 +93,22 @@ def parse_metrics_absolute_value(algorithms, chosen_devices):
             except Exception as e:
                 print(f"Warning: Error processing {path}: {str(e)}")
         
+        print("the ", tot_anon_counter/tot_images, "%", "of images has been anonymized")
         print("best wpsnr: ", best_wpsnr)
         print("best ssim: ", best_ssim)
-        print("best delta_pce: ", best_delta_pce)
-        print("best delta_ccn: ", best_delta_ccn)
+        print("best delta_pce: ", best_delta_pce, "%")
+        print("best delta_ccn: ", best_delta_ccn, "%")
         print("----------------------------------")
         print("worst wpsnr: ", worst_wpsnr)
         print("worst ssim: ", worst_ssim)
-        print("worst delta_pce: ", worst_delta_pce)
-        print("worst delta_ccn: ", worst_delta_ccn)
+        print("worst delta_pce: ", worst_delta_pce, "%")
+        print("worst delta_ccn: ", worst_delta_ccn, "%")
         print("----------------------------------")
-        print("on ", tot_counter, "anonymized images")
-        print("mean wpsnr: ", mean_wpsnr/tot_counter)
-        print("mean ssim: ", mean_ssim/tot_counter)
-        print("mean delta_pce on", tot_counter_pce, "images : ", mean_delta_pce/tot_counter_pce)
-        print("mean delta_ccn: ", tot_counter_ccn, "images : ", mean_delta_ccn/tot_counter_ccn)
+        print("on ", tot_anon_counter, "anonymized images")
+        print("mean wpsnr: ", mean_wpsnr/tot_anon_counter)
+        print("mean ssim: ", mean_ssim/tot_anon_counter)
+        print("mean delta_pce on", tot_counter_pce,  "images : ", mean_delta_pce/tot_counter_pce,"%")
+        print("mean delta_ccn: ", tot_counter_ccn, "images : ", mean_delta_ccn/tot_counter_ccn, "%")
         print("\n\n")
 
 
