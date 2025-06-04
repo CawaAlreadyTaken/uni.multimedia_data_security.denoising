@@ -40,7 +40,7 @@ def process_file(args):
 
 def generate_confusion_matrix(algorithms_list, devices_list):
     # Mapping from algorithm number to folder name
-    algorithm_mapping = {1: "fingerprint_removal", 2: "median_filtering", 3: "adp2"}
+    algorithm_mapping = {1: "fingerprint_removal", 2: "median_filtering", 3: "apd2"}
 
     # Ensure the output folder exists
     os.makedirs(OUTPUT_GRAPHS_FOLDER, exist_ok=True)

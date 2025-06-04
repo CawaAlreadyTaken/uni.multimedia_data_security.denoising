@@ -1,7 +1,7 @@
 from anonymizer.fingerprint_removal import main as fingerprint_removal
 from anonymizer.median_filtering import main as median_filtering
 from utils.parse_input import parse_device_input
-from anonymizer.adp2 import main as adp2
+from anonymizer.apd2 import main as apd2
 
 def menu():
     """
@@ -12,7 +12,7 @@ def menu():
         print("\n===== ANONYMIZER MENU =====")
         print("\n1) Fingerprint Removal")
         print("2) Median Filtering")
-        print("3) ADP2")
+        print("3) APD2")
         print("all) Apply all three algorithms")
         print("h) Show this menu description again")
         print("q) Quit anonymizer, go back")
@@ -54,11 +54,11 @@ def menu():
         elif choice == '2':
             median_filtering(chosen_devices)
         elif choice == '3':
-            adp2(chosen_devices)
+            apd2(chosen_devices)
         elif choice == 'all':
             fingerprint_removal(chosen_devices)
             median_filtering(chosen_devices)
-            adp2(chosen_devices)
+            apd2(chosen_devices)
 
         # Optionally, ask if the user wants to continue or break out
         cont = input("Do you want to process more? (y/n): ").strip().lower()

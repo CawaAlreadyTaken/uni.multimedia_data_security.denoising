@@ -54,7 +54,7 @@ def menu():
             if graph_identifier == 1:
                 print("------------------------------------------")
                 print()
-                print("Consider that (1) = Fingerprint Removal, (2) = Median Filtering, (3) = ADP2")
+                print("Consider that (1) = Fingerprint Removal, (2) = Median Filtering, (3) = APD2")
                 print("Enter the algorithm number(s) between 1 and 3 to process.\n"
                     "You can specify them in these ways:\n"
                     " - Single algorithm (e.g. '2')\n"
@@ -76,7 +76,7 @@ def menu():
             elif graph_identifier == 2:
                 print("------------------------------------------")
                 print()
-                print("Consider that (1) = Fingerprint Removal, (2) = Median Filtering, (3) = ADP2")
+                print("Consider that (1) = Fingerprint Removal, (2) = Median Filtering, (3) = APD2")
                 print("Enter the algorithm number(s) between 1 and 3 to process.\n"
                     "You can specify them in these ways:\n"
                     " - Single algorithm (e.g. '2')\n"
@@ -99,7 +99,7 @@ def menu():
             elif graph_identifier == 3:
                 print("------------------------------------------")
                 print()
-                print("Consider that (1) = Fingerprint Removal, (2) = Median Filtering, (3) = ADP2")
+                print("Consider that (1) = Fingerprint Removal, (2) = Median Filtering, (3) = APD2")
                 print("Enter the algorithm number(s) between 1 and 3 to process.\n"
                     "You can specify them in these ways:\n"
                     " - Single algorithm (e.g. '2')\n"

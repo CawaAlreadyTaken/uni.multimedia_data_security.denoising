@@ -11,7 +11,7 @@ def menu():
         print("\n===== METRICS MENU =====")
         print("\n1) Fingerprint Removal")
         print("2) Median Filtering")
-        print("3) ADP2")
+        print("3) APD2")
         print("all) Apply all three algorithms")
         print("h) Show this menu description again")
         print("q) Quit anonymizer, go back")
@@ -55,11 +55,11 @@ def menu():
         elif choice == '2':
             metrics_calculator(chosen_devices, OUTPUTPATH + 'median_filtering')
         elif choice == '3':
-            metrics_calculator(chosen_devices, OUTPUTPATH + 'adp2')
+            metrics_calculator(chosen_devices, OUTPUTPATH + 'apd2')
         elif choice == 'all':
             metrics_calculator(chosen_devices, OUTPUTPATH + 'fingerprint_removal')
             metrics_calculator(chosen_devices, OUTPUTPATH + 'median_filtering')
-            metrics_calculator(chosen_devices, OUTPUTPATH + 'adp2')
+            metrics_calculator(chosen_devices, OUTPUTPATH + 'apd2')
 
         # Optionally, ask if the user wants to continue or break out
         cont = input("Do you want to process more? (y/n): ").strip().lower()

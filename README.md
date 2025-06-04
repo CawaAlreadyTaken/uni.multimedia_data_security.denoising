@@ -40,7 +40,7 @@ For every option that requires specifying the algorithm and the devices, the fol
 
 1) Fingerprint Removal
 2) Median Filtering
-3) ADP2
+3) APD2
 all) Apply all three algorithms
 h) Show this menu description again
 q) Quit anonymizer, go back

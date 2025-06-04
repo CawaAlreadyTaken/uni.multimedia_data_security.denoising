@@ -9,7 +9,7 @@ import os
 
 def parse_metrics_absolute_value(algorithms, chosen_devices):
 
-    algorithm_mapping = {1: "fingerprint_removal", 2: "median_filtering", 3: "adp2"}
+    algorithm_mapping = {1: "fingerprint_removal", 2: "median_filtering", 3: "apd2"}
 
     for algorithm in algorithms:
         # bigger is better
@@ -114,7 +114,7 @@ def parse_metrics_absolute_value(algorithms, chosen_devices):
 
 def parse_metrics_percentage(chosen_devices):
     # always considering all the algorithms
-    algorithms = ["fingerprint_removal", "median_filtering", "adp2"]
+    algorithms = ["fingerprint_removal", "median_filtering", "apd2"]
 
     best_wpsnr_count=[0,0,0]
     best_ssim_count=[0,0,0]
