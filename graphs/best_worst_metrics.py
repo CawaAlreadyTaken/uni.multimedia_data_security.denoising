@@ -160,41 +160,41 @@ def parse_metrics_percentage(chosen_devices):
                 elif img_name not in metrics2: 
                     print(img_name, " not existing in ", algorithms[2])
                 else:
-                    if metrics0[img_name]["pce"]>50.0:
+                    if metrics0[img_name]["pce"]>50.0 or metrics0[img_name]["initial_pce"]- metrics0[img_name]["pce"]<0:
                         delta_ccn0= 0
                         delta_pce0=0
                         wpsnr0 = 0
                         ssim0 = 0
                     else:
-                        delta_ccn0 = metrics0[img_name]["initial_ccn"]- metrics0[img_name]["ccn"]
-                        delta_pce0 = metrics0[img_name]["initial_pce"]- metrics0[img_name]["pce"]
+                        delta_ccn0 = (metrics0[img_name]["initial_ccn"]- metrics0[img_name]["ccn"])/metrics0[img_name]["initial_ccn"]
+                        delta_pce0 = (metrics0[img_name]["initial_pce"]- metrics0[img_name]["pce"])/metrics0[img_name]["initial_pce"]
                         wpsnr0 = metrics0[img_name]["wpsnr"]
                         ssim0 = metrics0[img_name]["ssim"]
 
-                    if metrics1[img_name]["pce"]>50.0:
+                    if metrics1[img_name]["pce"]>50.0 or metrics1[img_name]["initial_pce"]- metrics1[img_name]["pce"]<0:
                         delta_ccn1= 0
                         delta_pce1=0
                         wpsnr1 = 0
                         ssim1 = 0
                     else:
-                        delta_ccn1 = metrics1[img_name]["initial_ccn"]- metrics1[img_name]["ccn"]
-                        delta_pce1 = metrics1[img_name]["initial_pce"]- metrics1[img_name]["pce"]
+                        delta_ccn1 = (metrics1[img_name]["initial_ccn"]- metrics1[img_name]["ccn"])/metrics1[img_name]["initial_ccn"]
+                        delta_pce1 = (metrics1[img_name]["initial_pce"]- metrics1[img_name]["pce"])/metrics1[img_name]["initial_pce"]
                         wpsnr1 = metrics1[img_name]["wpsnr"]
                         ssim1 = metrics1[img_name]["ssim"]
 
                     
-                    if metrics2[img_name]["pce"]>50.0:
+                    if metrics2[img_name]["pce"]>50.0 or metrics2[img_name]["initial_pce"]- metrics2[img_name]["pce"]<0:
                         delta_ccn2= 0
                         delta_pce2=0
                         wpsnr2 = 0
                         ssim2 = 0
                     else:
-                        delta_ccn2 = metrics2[img_name]["initial_ccn"]- metrics2[img_name]["ccn"]
-                        delta_pce2 = metrics2[img_name]["initial_pce"]- metrics2[img_name]["pce"]
+                        delta_ccn2 = (metrics2[img_name]["initial_ccn"]- metrics2[img_name]["ccn"])/metrics2[img_name]["initial_ccn"]
+                        delta_pce2 = (metrics2[img_name]["initial_pce"]- metrics2[img_name]["pce"])/metrics2[img_name]["initial_pce"]
                         wpsnr2 = metrics2[img_name]["wpsnr"]
                         ssim2 = metrics2[img_name]["ssim"]
 
-                    if metrics0[img_name]["pce"]<=50.0 or metrics1[img_name]["pce"]<=50.0 or metrics2[img_name]["pce"]<=50.0:
+                    if (metrics0[img_name]["pce"]<=50.0 and metrics0[img_name]["initial_pce"]- metrics0[img_name]["pce"]>0) or (metrics1[img_name]["pce"]<=50.0 and metrics1[img_name]["initial_pce"]- metrics1[img_name]["pce"]>0) or (metrics2[img_name]["pce"]<=50.0 and metrics2[img_name]["initial_pce"]- metrics2[img_name]["pce"]>0):
                         total_img += 1
                         index_of_max = max(enumerate([wpsnr0, wpsnr1, wpsnr2]), key=lambda x: x[1])[0]
                         best_wpsnr_count[index_of_max] += 1
