@@ -1,7 +1,7 @@
 .venv/
 **/__pycache__/
-fingerprints/*.mat
-fingerprints/*.npy
+fingerprints/*/*.mat
+fingerprints/*/*.npy
 **/nohup.out
 **/altro_nohup.txt
 graphs/outputs
