@@ -1,4 +1,4 @@
-from utils.constants import BASEPATH, OUTPUTPATH, FINGERPRINTSPATH
+from utils.constants import BASEPATH, OUTPUTPATH, FINGERPRINTSPATH_ANONYMIZATION
 from utils.rotate_image import rotate_image, rotate_back_image
 from utils.cross_correlation import crosscorr_2d_color
 from skimage.restoration import denoise_wavelet
@@ -22,7 +22,7 @@ def main(devices_list: list[str]):
             continue
         files = sorted(glob.glob(device_path + '/nat/*.*'))
         output_folder = OUTPUTPATH + 'fingerprint_removal/D' + device_path[-2:] + '/'
-        fingerprints_file = FINGERPRINTSPATH + 'Fingerprint_D' + device_path[-2:] + '.npy'
+        fingerprints_file = FINGERPRINTSPATH_ANONYMIZATION + 'Fingerprint_D' + device_path[-2:] + '.npy'
         estimated_fingerprint = np.load(fingerprints_file)
         for img_name in files:
             # Load 'original_image' and 'estimated_fingerprint' as NumPy arrays.

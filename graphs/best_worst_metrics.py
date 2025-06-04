@@ -1,4 +1,4 @@
-from utils.constants import BASEPATH, FINGERPRINTSPATH, OUTPUTPATH, OUTPUT_GRAPHS_FOLDER
+from utils.constants import OUTPUTPATH
 from pathlib import Path
 import numpy as np
 import glob

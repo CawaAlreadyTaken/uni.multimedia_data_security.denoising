@@ -1,4 +1,4 @@
-from utils.constants import BASEPATH, FINGERPRINTSPATH, OUTPUTPATH, OUTPUT_GRAPHS_FOLDER
+from utils.constants import BASEPATH, FINGERPRINTSPATH_EVALUATION, OUTPUTPATH, OUTPUT_GRAPHS_FOLDER
 from metrics.metrics_calculator import compute_pce
 from sklearn.metrics import confusion_matrix
 import matplotlib.pyplot as plt
@@ -15,7 +15,7 @@ def find_best_fingerprint(original_path: str, anonymized_path: str):
     best_device = 0
     for device in range(1, 36):
         # Load the fingerprint for the current device
-        fingerprint_file = os.path.join(FINGERPRINTSPATH, f'Fingerprint_D{str(device).zfill(2)}.npy')
+        fingerprint_file = os.path.join(FINGERPRINTSPATH_EVALUATION, f'Fingerprint_D{str(device).zfill(2)}.npy')
         fingerprint = np.load(fingerprint_file).astype(np.float32)
         fingerprint = np.repeat(fingerprint[..., np.newaxis], 3, axis=2)
         print("Calculating pce with fingerprint device", device)
