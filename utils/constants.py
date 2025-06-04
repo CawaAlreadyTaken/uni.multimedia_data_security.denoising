@@ -1,4 +1,7 @@
 BASEPATH = '/media/SSD_new/VISION_IMAGES/'
 OUTPUTPATH = '/media/SSD_new/furious.transform/anonymized/'
-FINGERPRINTSPATH = 'fingerprints/'
+FINGERPRINTSPATH_ANONYMIZATION = 'fingerprints/anonymization/'
+FINGERPRINTSPATH_ANONYMIZATION_K1 = 'fingerprints/anonymization_k1/'
+FINGERPRINTSPATH_ANONYMIZATION_K2 = 'fingerprints/anonymization/k2'
+FINGERPRINTSPATH_EVALUATION = 'fingerprints/evaluation'
 OUTPUT_GRAPHS_FOLDER = 'graphs/outputs/'

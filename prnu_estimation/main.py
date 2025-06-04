@@ -1,4 +1,4 @@
-from utils.parse_device_input import parse_device_input
+from utils.parse_input import parse_device_input
 from utils.extraction import extract_multiple_aligned
 from utils.rotate_image import rotate_image
 from multiprocessing import cpu_count
@@ -8,6 +8,44 @@ import numpy as np
 import glob
 import cv2
 
+
+def extract_fingerprint(files, device_path, folder):
+    print("Number of files for fingerprint ", folder, ":", len(files))
+    K_k = []
+    imgs = []
+    group_size = 30
+    idx_1 = 0
+    idx_2 = 0
+    for img_name in files:
+        print(f"[ESTIMATING FINGERPRINT] {img_name}")
+        img = cv2.imread(img_name)
+        try:
+            img = rotate_image(img, img_name)
+
+            imgs += [img.astype(dtype=np.uint8)]
+            
+        except:
+            if np.shape(img)[0]<np.shape(img)[1]:
+                imgs += [img.astype(dtype=np.uint8)]
+
+    if not len(imgs):
+        for img_name in files:
+            img = cv2.imread(img_name)
+            if np.shape(img)[0]<np.shape(img)[1]:
+                imgs += [img.astype(dtype=np.uint8)]
+    
+    if not len(imgs):
+        print('No images found for device', device_path[-3:])
+        return
+    print('compute fingerprint', device_path[-3:], ' with: ', len(imgs), 'IMAGES')
+    K_k += [extract_multiple_aligned(imgs, processes=cpu_count(), sigma=3)]
+    K_k = np.stack(K_k, 0)
+
+    del imgs
+    K = np.squeeze(K_k, axis=0)
+    out_name = 'fingerprints/'+folder+'/Fingerprint_' + device_path[-3:] + '.npy'
+    np.save(out_name, K)
+
 def estimate(devices_list: list[str]):
 
     devices = sorted(glob.glob(BASEPATH+'D*'))
@@ -16,40 +54,15 @@ def estimate(devices_list: list[str]):
         if device_path[-2:] not in devices_list:
             continue
         files = sorted(glob.glob(device_path + '/flat/*.*'))
-        K_k = []
-        imgs = []
-        group_size = 30
-        idx_1 = 0
-        idx_2 = 0
-        for img_name in files:
-            print(f"[ESTIMATING FINGERPRINT] {img_name}")
-            img = cv2.imread(img_name)
-            try:
-                img = rotate_image(img, img_name)
+        print("Number of files found for device", device_path[-3:], ":", len(files))
+        extract_fingerprint(files[:len(files)//2], device_path, 'evaluation')
+        extract_fingerprint(files[len(files)//2:], device_path, 'anonymization')
+        # i have to devide files[len(files)//2:] in two parts, one for k1 and one for k2
+        k1 = files[len(files)//2:len(files)//2 + len(files)//4]
+        k2 = files[len(files)//2 + len(files)//4:]
+        extract_fingerprint(k1, device_path, 'anonymization_k1')
+        extract_fingerprint(k2, device_path, 'anonymization_k2')
 
-                imgs += [img.astype(dtype=np.uint8)]
-                
-            except:
-                if np.shape(img)[0]<np.shape(img)[1]:
-                    imgs += [img.astype(dtype=np.uint8)]
-
-        if not len(imgs):
-            for img_name in files:
-                img = cv2.imread(img_name)
-                if np.shape(img)[0]<np.shape(img)[1]:
-                    imgs += [img.astype(dtype=np.uint8)]
-        
-        if not len(imgs):
-            print('No images found for device', device_path[-3:])
-            continue
-        print('compute fingerprint', device_path[-3:], ' with: ', len(imgs), 'IMAGES')
-        K_k += [extract_multiple_aligned(imgs, processes=cpu_count(), sigma=3)]
-        K_k = np.stack(K_k, 0)
-
-        del imgs
-        K = np.squeeze(K_k, axis=0)
-        out_name = 'fingerprints/Fingerprint_' + device_path[-3:] + '.npy'
-        np.save(out_name, K)
 
 def menu():
     """
