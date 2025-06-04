@@ -8,7 +8,6 @@ import numpy as np
 import glob
 import os
 
-
 def find_best_fingerprint(original_path: str, anonymized_path: str):
     print("Finding best fingerprint for", anonymized_path)
     max_pce = 0
@@ -62,10 +61,25 @@ def generate_confusion_matrix(algorithms_list, devices_list):
         for device in devices_list:
             folder_path = os.path.join(OUTPUTPATH, algo_name, 'D' + device)
             files = sorted(glob.glob(os.path.join(folder_path, '*.jpg')))
+
+            # Build the metrics file path. Example: "output/fingerprint_removal/D08/metrics.json"
+            metrics_path = os.path.join(OUTPUTPATH, algo_name, f"D{device}", "metrics.json")
+            if not os.path.exists(file_path):
+                print(f"Warning: File {file_path} not found.")
+                exit(1)
+            with open(metrics_path, "r") as f:
+                metrics_info = json.load(f)
+
             for file in files:
+                final_image_pce = metrics_info.get(os.path.basename(file)).get("pce")
+                initial_image_pce = metrics_info.get(os.path.basename(file)).get("initial_pce")
+                # New: skip image if not anonymized
+                if final_image_pce > 50 or (initial_image_pce < final_image_pce):
+                    continue
                 # Construct the path to the original image
                 original_path = os.path.join(BASEPATH, 'D' + device, 'nat', os.path.basename(file))
-                tasks.append((original_path, file, device))
+                #tasks.append((original_path, file, device))
+                tasks.append((original_path, original_path, device))
 
         # ------------------------------------------------------------------------------
         # 2) Use ProcessPoolExecutor to parallelize the computation
@@ -83,6 +97,11 @@ def generate_confusion_matrix(algorithms_list, devices_list):
 
         # Compute confusion matrix using sklearn
         cm = confusion_matrix(np_true, np_predicted)
+        print(np_true)
+        print()
+        print(np_predicted)
+        print()
+        print(cm)
 
         # Class labels for devices (D1, D2, ..., D35)
         class_labels = ['D' + str(x) for x in range(1, 36)]
