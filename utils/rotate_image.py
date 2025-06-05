@@ -6,6 +6,7 @@ def rotate_image(img, img_name):
         if "EXIF:Orientation" not in et.get_metadata(img_name):
             return None
         orientation = et.get_metadata(img_name)["EXIF:Orientation"]
+        width, height = img.shape[1], img.shape[0]
     if orientation == 8:
         img = cv2.rotate(img, cv2.ROTATE_90_CLOCKWISE)
     if orientation == 6:
@@ -14,7 +15,8 @@ def rotate_image(img, img_name):
         img = cv2.rotate(img, cv2.ROTATE_180)
 
     if orientation != 8 and orientation != 1 and orientation != 6 and orientation != 3:
-        return None
+        if width < height:
+            img = cv2.rotate(img, cv2.ROTATE_90_CLOCKWISE)
 
     return img
 

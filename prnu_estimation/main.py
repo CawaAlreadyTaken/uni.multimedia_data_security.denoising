@@ -21,9 +21,7 @@ def extract_fingerprint(files, device_path, folder):
         img = cv2.imread(img_name)
         try:
             img = rotate_image(img, img_name)
-
             imgs += [img.astype(dtype=np.uint8)]
-            
         except:
             if np.shape(img)[0]<np.shape(img)[1]:
                 imgs += [img.astype(dtype=np.uint8)]
@@ -99,7 +97,7 @@ def menu():
                              " - A range with a dash (e.g. '6-10')\n"
                              "Or any combination (e.g. '5,7,10-12').\n"
                              "Your choice: ")
-
+        
         chosen_devices = parse_device_input(devices_input)
 
         if not chosen_devices:
