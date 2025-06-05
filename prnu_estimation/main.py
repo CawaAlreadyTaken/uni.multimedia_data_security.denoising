@@ -19,8 +19,10 @@ def extract_fingerprint(files, device_path, folder):
     for img_name in files:
         print(f"[ESTIMATING FINGERPRINT] {img_name}")
         img = cv2.imread(img_name)
+        
         try:
             img = rotate_image(img, img_name)
+            # print(img)
             imgs += [img.astype(dtype=np.uint8)]
         except:
             if np.shape(img)[0]<np.shape(img)[1]:
