@@ -24,15 +24,15 @@ def main(devices: list[str]) -> None:
 
     for device in devices:
         # Cache fingerprint for the device (load it once)
-        device_fingerprint_file = os.path.join(fingerprint_base, f"{device}.npy")
+        device_fingerprint_file = os.path.join(fingerprint_base+f"{device}.npy")
         fingerprint = np.load(device_fingerprint_file)
         fingerprint = np.repeat(fingerprint[..., np.newaxis], 3, axis=2)
 
         # Create device save folder if it does not exist
-        device_save_path = os.path.join(save_path, device)
+        device_save_path = os.path.join(save_path + device)
         os.makedirs(device_save_path, exist_ok=True)
 
-        files = sorted(glob.glob(os.path.join(base_path, device, 'nat', '*.*')))
+        files = sorted(glob.glob(os.path.join(base_path + device, 'nat', '*.*')))
         for img_path in files:
             print_status(img_path)
             # Build the output image path; uses last 18 characters of original file name
@@ -66,4 +66,5 @@ def main(devices: list[str]) -> None:
                 iteration += 1
 
             img_anonymized = rotate_back_image(img_anonymized, img_path)
-            cv2.imwrite(save_path_image, img_anonymized)
+            if not img_anonymized is None:
+                cv2.imwrite(save_path_image, img_anonymized)
