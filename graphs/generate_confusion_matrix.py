@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import concurrent.futures
 import seaborn as sns
 import numpy as np
+import json
 import glob
 import os
 
@@ -12,31 +13,51 @@ def find_best_fingerprint(original_path: str, anonymized_path: str):
     print("Finding best fingerprint for", anonymized_path)
     max_pce = 0
     best_device = 0
-    for device in range(1, 36):
-        # Load the fingerprint for the current device
-        fingerprint_file = os.path.join(FINGERPRINTSPATH_EVALUATION, f'Fingerprint_D{str(device).zfill(2)}.npy')
+    result = {}
+    for d in range(1, 36):
+        fingerprint_file = os.path.join(FINGERPRINTSPATH_EVALUATION, f'Fingerprint_D{str(d).zfill(2)}.npy')
+        if not os.path.exists(fingerprint_file):
+            print(f"Warning: File {fingerprint_file} not found.")
+            continue
         fingerprint = np.load(fingerprint_file).astype(np.float32)
         fingerprint = np.repeat(fingerprint[..., np.newaxis], 3, axis=2)
-        print("Calculating pce with fingerprint device", device)
+        print("Calculating pce with fingerprint device", d)
         pce = compute_pce(original_path, anonymized_path, fingerprint)
         if pce is None:
             continue
+        result[d] = pce
         if pce > max_pce:
             max_pce = pce
-            best_device = device
+            best_device = d
 
-    return str(best_device).zfill(2)
+    return str(best_device).zfill(2), result
 
 def process_file(args):
-    """
-    Helper function to process a single file.
-    Returns a tuple (device, best_device) where:
-      - device: the true device label
-      - best_device: the predicted device label computed by find_best_fingerprint
-    """
     original_path, anonymized_path, device = args
-    best_device = find_best_fingerprint(original_path, anonymized_path)
-    return device, best_device
+    file = os.path.basename(anonymized_path)
+    best_device, pce_dict = find_best_fingerprint(original_path, anonymized_path)
+
+    # Determina il nome dell’algoritmo dalla struttura del path
+    algo_name = anonymized_path.split(os.sep)[-3]  # es: output/ALGO_NAME/Dxx/file.jpg
+
+    # Path al JSON
+    matrix_json_path = os.path.join(OUTPUTPATH, algo_name, f"D{device}", "matrix.json")
+
+    # Carica il file se esiste
+    if os.path.exists(matrix_json_path):
+        with open(matrix_json_path, "r") as f:
+            matrix_data = json.load(f)
+    else:
+        matrix_data = {}
+
+    # Salva solo il PCE relativo al best device trovato
+    matrix_data[file] = {str(k): v for k, v in pce_dict.items()}
+
+    # Scrivi nel JSON
+    with open(matrix_json_path, "w") as f:
+        json.dump(matrix_data, f, indent=4)
+
+    return device, best_device, file, pce_dict.get(int(best_device), None)
 
 def generate_confusion_matrix(algorithms_list, devices_list):
     # Mapping from algorithm number to folder name
@@ -64,13 +85,13 @@ def generate_confusion_matrix(algorithms_list, devices_list):
 
             # Build the metrics file path. Example: "output/fingerprint_removal/D08/metrics.json"
             metrics_path = os.path.join(OUTPUTPATH, algo_name, f"D{device}", "metrics.json")
-            if not os.path.exists(file_path):
-                print(f"Warning: File {file_path} not found.")
+            if not os.path.exists(metrics_path):
+                print(f"Warning: File {metrics_path} not found.")
                 exit(1)
             with open(metrics_path, "r") as f:
                 metrics_info = json.load(f)
 
-            for file in files:
+            for file in files[:10]:
                 final_image_pce = metrics_info.get(os.path.basename(file)).get("pce")
                 initial_image_pce = metrics_info.get(os.path.basename(file)).get("initial_pce")
                 # New: skip image if not anonymized
@@ -78,8 +99,8 @@ def generate_confusion_matrix(algorithms_list, devices_list):
                     continue
                 # Construct the path to the original image
                 original_path = os.path.join(BASEPATH, 'D' + device, 'nat', os.path.basename(file))
-                #tasks.append((original_path, file, device))
-                tasks.append((original_path, original_path, device))
+                tasks.append((original_path, file, device))
+                # tasks.append((original_path, original_path, device))
 
         # ------------------------------------------------------------------------------
         # 2) Use ProcessPoolExecutor to parallelize the computation
@@ -88,7 +109,7 @@ def generate_confusion_matrix(algorithms_list, devices_list):
             results = list(executor.map(process_file, tasks))
 
         # Collect results from parallel execution
-        for device, best_device in results:
+        for device, best_device, file, pce in results:
             data_true.append(device)
             data_predicted.append(best_device)
 
