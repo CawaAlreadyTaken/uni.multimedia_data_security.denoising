@@ -91,7 +91,7 @@ def generate_confusion_matrix(algorithms_list, devices_list):
             with open(metrics_path, "r") as f:
                 metrics_info = json.load(f)
 
-            for file in files[:10]:
+            for file in files:
                 final_image_pce = metrics_info.get(os.path.basename(file)).get("pce")
                 initial_image_pce = metrics_info.get(os.path.basename(file)).get("initial_pce")
                 # New: skip image if not anonymized
