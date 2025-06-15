@@ -68,7 +68,11 @@ def main(chosen_devices: list[str], anonymized_images: str):
         files = sorted(glob.glob(BASEPATH + 'D' + device + '/nat/*.*'))
         
         fp_path = os.path.join(FINGERPRINTSPATH_EVALUATION, f'Fingerprint_D{device}.npy')
-        fingerprint = np.load(fp_path).astype(np.float32)
+        try:
+            fingerprint = np.load(fp_path).astype(np.float32)
+        except FileNotFoundError:
+            print(f"Fingerprint file {fp_path} not found.")
+            continue
         fingerprint = np.repeat(fingerprint[..., np.newaxis], 3, axis=2)
 
         if not os.path.exists(anonymized_images):
