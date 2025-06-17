@@ -23,9 +23,13 @@ def main(devices_list: list[str]):
         files = sorted(glob.glob(device_path + '/nat/*.*'))
         output_folder = OUTPUTPATH + 'fingerprint_removal/D' + device_path[-2:] + '/'
         fingerprints_file_k1 = FINGERPRINTSPATH_ANONYMIZATION_K1 + 'Fingerprint_D' + device_path[-2:] + '.npy'
-        fingerprints_file_k1 = FINGERPRINTSPATH_ANONYMIZATION_K2 + 'Fingerprint_D' + device_path[-2:] + '.npy'
-        estimated_fingerprint_k1 = np.load(fingerprints_file_k1)
-        estimated_fingerprint_k2 = np.load(fingerprints_file_k2)
+        fingerprints_file_k2 = FINGERPRINTSPATH_ANONYMIZATION_K2 + 'Fingerprint_D' + device_path[-2:] + '.npy'
+        try:
+            estimated_fingerprint_k1 = np.load(fingerprints_file_k1)
+            estimated_fingerprint_k2 = np.load(fingerprints_file_k2)
+        except FileNotFoundError:
+            print(f"Fingerprint files not found for device {device_path[-2:]}. Skipping...")
+            continue
         for img_name in files:
             # Load 'original_image' and estimated fingerprints as NumPy arrays.
             print(f"[ANONYMIZING fingerprint_removal] {img_name}")
