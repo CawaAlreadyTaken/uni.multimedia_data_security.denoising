@@ -76,7 +76,7 @@ def generate_histogram(algorithms_list, devices_list):
                         wpsnr = values.get("wpsnr")
                         ssim = values.get("ssim")
                         diff_pce = max(values.get("initial_pce") - values.get("pce"), 0) / values.get("initial_pce")
-                        diff_ccn = max(values.get("initial_ccn") - values.get("ccn"), 0) / values.get("initial_ccn")
+                        diff_ccn = max(max(values.get("initial_ccn"), 0) - max(values.get("ccn"), 0), 0) / max(values.get("initial_ccn"), 0.01)
                         data[algo_name][image_name] = (wpsnr, ssim, diff_pce, diff_ccn)
             else:
                 # For multiple devices, compute the average over all images for this device.
@@ -89,7 +89,7 @@ def generate_histogram(algorithms_list, devices_list):
                         wpsnr_vals.append(values.get("wpsnr"))
                         ssim_vals.append(values.get("ssim"))
                         diff_pce_vals.append(max(values.get("initial_pce") - values.get("pce"), 0) / values.get("initial_pce"))
-                        diff_ccn_vals.append(max(values.get("initial_ccn") - values.get("ccn"), 0) / values.get("initial_ccn"))
+                        diff_ccn_vals.append(max(max(values.get("initial_ccn"), 0) - max(values.get("ccn"), 0), 0) / max(values.get("initial_ccn"), 0.01))
                 if len(wpsnr_vals) > 0:
                     avg_wpsnr = np.mean(wpsnr_vals)
                     avg_ssim = np.mean(ssim_vals)

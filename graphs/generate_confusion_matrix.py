@@ -17,11 +17,11 @@ def find_best_fingerprint(original_path: str, anonymized_path: str):
     for d in range(1, 36):
         fingerprint_file = os.path.join(FINGERPRINTSPATH_EVALUATION, f'Fingerprint_D{str(d).zfill(2)}.npy')
         if not os.path.exists(fingerprint_file):
-            print(f"Warning: File {fingerprint_file} not found.")
+            # print(f"Warning: File {fingerprint_file} not found.")
             continue
         fingerprint = np.load(fingerprint_file).astype(np.float32)
         fingerprint = np.repeat(fingerprint[..., np.newaxis], 3, axis=2)
-        print("Calculating pce with fingerprint device", d)
+        # print("Calculating pce with fingerprint device", d)
         pce = compute_pce(original_path, anonymized_path, fingerprint)
         if pce is None:
             continue
@@ -46,7 +46,11 @@ def process_file(args):
     # Carica il file se esiste
     if os.path.exists(matrix_json_path):
         with open(matrix_json_path, "r") as f:
-            matrix_data = json.load(f)
+            try:
+                matrix_data = json.load(f)
+            except Exception as e:
+                print(f"Error loading JSON file {matrix_json_path}: {e}")
+                matrix_data = {}
     else:
         matrix_data = {}
 
@@ -87,7 +91,7 @@ def generate_confusion_matrix(algorithms_list, devices_list):
             metrics_path = os.path.join(OUTPUTPATH, algo_name, f"D{device}", "metrics.json")
             if not os.path.exists(metrics_path):
                 print(f"Warning: File {metrics_path} not found.")
-                exit(1)
+                continue
             with open(metrics_path, "r") as f:
                 metrics_info = json.load(f)
 

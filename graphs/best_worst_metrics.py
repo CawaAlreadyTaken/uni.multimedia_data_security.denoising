@@ -73,15 +73,15 @@ def parse_metrics_absolute_value(algorithms, chosen_devices):
                             # else:
                             #     print("Attenzione, initial-> ", metrics[img_name]["initial_pce"], "pce-> ", metrics[img_name]["pce"])
 
-                            if (metrics[img_name]["initial_ccn"]- metrics[img_name]["ccn"])/metrics[img_name]["initial_ccn"] > best_delta_ccn:
-                                best_delta_ccn = (metrics[img_name]["initial_ccn"]- metrics[img_name]["ccn"])/metrics[img_name]["initial_ccn"]
-                            if (metrics[img_name]["initial_ccn"]- metrics[img_name]["ccn"])/metrics[img_name]["initial_ccn"] < worst_delta_ccn:
-                                worst_delta_ccn = (metrics[img_name]["initial_ccn"]- metrics[img_name]["ccn"])/metrics[img_name]["initial_ccn"]
-                            if (metrics[img_name]["initial_ccn"]- metrics[img_name]["ccn"])/metrics[img_name]["initial_ccn"] > 0:
-                                mean_delta_ccn += (metrics[img_name]["initial_ccn"]- metrics[img_name]["ccn"])/metrics[img_name]["initial_ccn"]
+                            if (max(metrics[img_name]["initial_ccn"], 0)- max(metrics[img_name]["ccn"], 0))/max(metrics[img_name]["initial_ccn"], 0.01) > best_delta_ccn:
+                                best_delta_ccn = (max(metrics[img_name]["initial_ccn"], 0) - max(metrics[img_name]["ccn"], 0))/max(metrics[img_name]["initial_ccn"], 0.01)
+                            if (max(metrics[img_name]["initial_ccn"], 0)- max(metrics[img_name]["ccn"], 0))/max(metrics[img_name]["initial_ccn"], 0.01) < worst_delta_ccn:
+                                worst_delta_ccn = (max(metrics[img_name]["initial_ccn"], 0) - max(metrics[img_name]["ccn"], 0))/max(metrics[img_name]["initial_ccn"], 0.01)
+                            if (max(metrics[img_name]["initial_ccn"], 0)- max(metrics[img_name]["ccn"], 0))/max(metrics[img_name]["initial_ccn"], 0.01) > 0:
+                                mean_delta_ccn += (max(metrics[img_name]["initial_ccn"], 0) - max(metrics[img_name]["ccn"], 0))/max(metrics[img_name]["initial_ccn"], 0.01)
                                 tot_counter_ccn += 1
                             # else:
-                            #     print("Attenzione, initial-> ", metrics[img_name]["initial_ccn"], "ccn-> ", metrics[img_name]["ccn"])
+                            #     print("Attenzione, initial-> ", max(metrics[img_name]["initial_ccn"], 0), "ccn-> ", max(metrics[img_name]["ccn"], 0))
 
                     
 
@@ -166,7 +166,7 @@ def parse_metrics_percentage(chosen_devices):
                         wpsnr0 = 0
                         ssim0 = 0
                     else:
-                        delta_ccn0 = (metrics0[img_name]["initial_ccn"]- metrics0[img_name]["ccn"])/metrics0[img_name]["initial_ccn"]
+                        delta_ccn0 = (max(metrics0[img_name]["initial_ccn"], 0)- max(metrics0[img_name]["ccn"], 0))/max(metrics0[img_name]["initial_ccn"], 0.01)
                         delta_pce0 = (metrics0[img_name]["initial_pce"]- metrics0[img_name]["pce"])/metrics0[img_name]["initial_pce"]
                         wpsnr0 = metrics0[img_name]["wpsnr"]
                         ssim0 = metrics0[img_name]["ssim"]
@@ -177,7 +177,7 @@ def parse_metrics_percentage(chosen_devices):
                         wpsnr1 = 0
                         ssim1 = 0
                     else:
-                        delta_ccn1 = (metrics1[img_name]["initial_ccn"]- metrics1[img_name]["ccn"])/metrics1[img_name]["initial_ccn"]
+                        delta_ccn1 = (max(metrics1[img_name]["initial_ccn"], 0)- max(metrics1[img_name]["ccn"], 0))/max(metrics1[img_name]["initial_ccn"], 0.01)
                         delta_pce1 = (metrics1[img_name]["initial_pce"]- metrics1[img_name]["pce"])/metrics1[img_name]["initial_pce"]
                         wpsnr1 = metrics1[img_name]["wpsnr"]
                         ssim1 = metrics1[img_name]["ssim"]
@@ -189,7 +189,7 @@ def parse_metrics_percentage(chosen_devices):
                         wpsnr2 = 0
                         ssim2 = 0
                     else:
-                        delta_ccn2 = (metrics2[img_name]["initial_ccn"]- metrics2[img_name]["ccn"])/metrics2[img_name]["initial_ccn"]
+                        delta_ccn2 = (max(metrics2[img_name]["initial_ccn"], 0)- max(metrics2[img_name]["ccn"], 0))/max(metrics2[img_name]["initial_ccn"], 0.01)
                         delta_pce2 = (metrics2[img_name]["initial_pce"]- metrics2[img_name]["pce"])/metrics2[img_name]["initial_pce"]
                         wpsnr2 = metrics2[img_name]["wpsnr"]
                         ssim2 = metrics2[img_name]["ssim"]
