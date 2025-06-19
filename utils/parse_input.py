@@ -32,12 +32,12 @@ def parse_graphs_input(input_str):
     out = set()  # use a set to avoid duplicates
 
     if input_str == 'all':
-        return [1, 2, 3, 4]
+        return [1, 2, 3, 4, 5]
 
     for part in input_str.split(','):
         try:
             num = int(part)
-            if 1 <= num <= 4:
+            if 1 <= num <= 5:
                 out.add(num)
         except ValueError:
             pass

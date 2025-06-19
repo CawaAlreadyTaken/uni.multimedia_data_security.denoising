@@ -5,6 +5,7 @@ from graphs.generate_histogram import generate_histogram
 from utils.parse_input import parse_device_input
 from graphs.best_worst_metrics import parse_metrics_absolute_value
 from graphs.best_worst_metrics import parse_metrics_percentage
+from graphs.confusion_matrix_file import generate_matrix_file
 
 def menu():
     """
@@ -34,7 +35,7 @@ def menu():
 
         print("------------------------------------------")
         print()
-        graphs_input = input("Consider that (1) = histogram, (2) = confusion matrix, (3) = best_worse results, (4) = winning percentage\n"
+        graphs_input = input("Consider that (1) = histogram, (2) = confusion matrix, (3) = best_worse results, (4) = winning percentage, (5)= generate confusion matrix from file\n"
                                 "Enter the graph(s) number(s) between 1 and 2 to generate.\n"
                                 "You can specify them in these ways:\n"
                                 " - Single graph (e.g. '2')\n" 
@@ -123,6 +124,22 @@ def menu():
                 print()
                 print("Note that this option always considers all methods\n")
                 parse_metrics_percentage(chosen_devices)
+            elif graph_identifier == 5:
+                print("------------------------------------------")
+                print()
+                print("Consider that (1) = Fingerprint Removal, (2) = Median Filtering, (3) = APD2")
+                print("Enter the algorithm number(s) between 1 and 3 to process.\n"
+                    "You can specify them in these ways:\n"
+                    " - Single algorithm (e.g. '2')\n"
+                    " - Multiple comma-separated algorithms (e.g. '1,3')\n"
+                    "Otherwise, you can write:")
+                print("all) Apply all three algorithms")
+                print("q) Quit graphs builder, go back")
+
+                choice = input("Select an option: ").strip().lower()
+                algorithms_input = parse_algorithms_input(choice)
+                print("graph from file")
+                generate_matrix_file(chosen_devices, algorithms_input)
             else:
                 continue
 
